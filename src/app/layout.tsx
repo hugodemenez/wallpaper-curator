@@ -1,9 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono } from "next/font/google";
+import { Figtree, Fraunces } from "next/font/google";
+import { ThemeScript } from "@/components/ThemeScript";
 import "./globals.css";
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -15,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Wallpaper Curator",
   },
   description:
-    "A terminal-styled gallery of curated public-domain wallpapers. Browse, download, set with Raycast.",
+    "A cozy gallery of curated public-domain paintings for your walls. Browse, download, set with Raycast.",
   applicationName: "Wallpaper Curator",
   authors: [{ name: "hugodemenez" }],
   icons: {
@@ -25,14 +33,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Wallpaper Curator",
     description:
-      "Curated public-domain wallpapers in a black-and-white terminal gallery.",
+      "Curated public-domain paintings in a quiet, home-like gallery.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ddd7cc" },
+    { media: "(prefers-color-scheme: dark)", color: "#2a221c" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({
@@ -41,8 +52,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={ibmPlexMono.variable}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${figtree.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
+        <ThemeScript />
+        <a className="skipLink" href="#main">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

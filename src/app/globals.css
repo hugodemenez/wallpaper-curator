@@ -1,20 +1,69 @@
 :root {
-  --bg: #000000;
-  --fg: #ffffff;
-  --dim: #aaaaaa;
-  --mute: #666666;
-  --border: #333333;
-  --border-hover: #555555;
-  --surface: #0a0a0a;
-  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
-  --ease-move: cubic-bezier(0.45, 0, 0.55, 1);
-  --font-mono: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, monospace;
+  /* Stone + walnut — light (OKLCH, better-colors) */
+  --bg: oklch(0.88 0.018 90);
+  --bg-deep: oklch(0.82 0.02 88);
+  --fg: oklch(0.27 0.02 55);
+  --dim: oklch(0.45 0.02 60);
+  --mute: oklch(0.58 0.018 70);
+  --wood: oklch(0.4 0.05 50);
+  --wood-soft: oklch(0.5 0.055 52);
+  --surface: oklch(0.925 0.014 92);
+  --border: oklch(0.75 0.018 85);
+  --border-hover: oklch(0.58 0.018 70);
+  --on-wood: oklch(0.95 0.015 90);
+  --image-outline: oklch(0 0 0 / 0.1);
+  --hero-scrim-0: oklch(0.88 0.018 90 / 0.96);
+  --hero-scrim-1: oklch(0.88 0.018 90 / 0.72);
+  --hero-scrim-2: oklch(0.88 0.018 90 / 0.18);
+  --hero-scrim-3: oklch(0.4 0.05 50 / 0.14);
+  --focus-ring: oklch(0.4 0.05 50);
+  --selection-bg: oklch(0.4 0.05 50 / 0.2);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-ui: cubic-bezier(0.2, 0, 0, 1);
+
+  /* transitions.dev — texts reveal */
+  --stagger-dur: 560ms;
+  --stagger-distance: 14px;
+  --stagger-stagger: 55ms;
+  --stagger-blur: 3px;
+  --stagger-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --font-display: var(--font-fraunces), "Times New Roman", serif;
+  --font-body: var(--font-figtree), system-ui, sans-serif;
+  --hit: 44px;
+
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  /* Reverse L mapping for dark (better-colors) */
+  --bg: oklch(0.22 0.02 70);
+  --bg-deep: oklch(0.18 0.018 68);
+  --fg: oklch(0.93 0.014 90);
+  --dim: oklch(0.78 0.016 85);
+  --mute: oklch(0.62 0.016 80);
+  --wood: oklch(0.78 0.06 62);
+  --wood-soft: oklch(0.7 0.055 58);
+  --surface: oklch(0.28 0.02 72);
+  --border: oklch(0.38 0.02 70);
+  --border-hover: oklch(0.55 0.02 72);
+  --on-wood: oklch(0.2 0.02 55);
+  --image-outline: oklch(1 0 0 / 0.1);
+  --hero-scrim-0: oklch(0.22 0.02 70 / 0.96);
+  --hero-scrim-1: oklch(0.22 0.02 70 / 0.78);
+  --hero-scrim-2: oklch(0.22 0.02 70 / 0.28);
+  --hero-scrim-3: oklch(0.78 0.06 62 / 0.18);
+  --focus-ring: oklch(0.78 0.06 62);
+  --selection-bg: oklch(0.78 0.06 62 / 0.28);
+
+  color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
-  border-radius: 0;
 }
 
 html,
@@ -23,18 +72,20 @@ body {
   min-height: 100%;
   background: var(--bg);
   color: var(--fg);
-  font: 13px/1.45 var(--font-mono);
+  font: 16px/1.5 var(--font-body);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--fg);
 }
 
 a {
-  color: var(--fg);
+  color: inherit;
   text-decoration: none;
   cursor: pointer;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 button,
@@ -45,16 +96,19 @@ select {
 }
 
 button {
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--fg);
-  padding: 4px 10px;
+  padding: 6px 12px;
   cursor: pointer;
+  border-radius: 0;
+  min-height: var(--hit);
+  min-width: var(--hit);
 }
 
 button:hover {
-  background: #111;
-  border-color: var(--fg);
+  border-color: var(--wood);
+  background: var(--bg);
 }
 
 button:disabled {
@@ -66,8 +120,8 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 a:focus-visible {
-  outline: 1px solid var(--fg);
-  outline-offset: 0;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .dim {
@@ -78,7 +132,65 @@ a:focus-visible {
   color: var(--mute);
 }
 
+/* Skip link — keyboard / a11y */
+.skipLink {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--wood);
+  color: var(--on-wood);
+  font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform 180ms var(--ease-out);
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Texts reveal (transitions.dev) */
+.t-stagger-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(var(--stagger-distance));
+  filter: blur(var(--stagger-blur));
+  transition:
+    opacity var(--stagger-dur) var(--stagger-ease),
+    transform var(--stagger-dur) var(--stagger-ease),
+    filter var(--stagger-dur) var(--stagger-ease);
+  will-change: transform, opacity, filter;
+}
+
+.t-stagger-line--2 {
+  transition-delay: var(--stagger-stagger);
+}
+
+.t-stagger-line--3 {
+  transition-delay: calc(var(--stagger-stagger) * 2);
+}
+
+.t-stagger-line--4 {
+  transition-delay: calc(var(--stagger-stagger) * 3);
+}
+
+.t-stagger.is-shown .t-stagger-line {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .t-stagger-line {
+    transition: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
   *,
   *::before,
   *::after {

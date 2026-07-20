@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allow iPhone / LAN devices to load Next.js HMR assets in development
+  allowedDevOrigins: ["192.168.0.127", "localhost"],
   images: {
     remotePatterns: [
       {

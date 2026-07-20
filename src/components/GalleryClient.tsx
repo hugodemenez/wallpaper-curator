@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { wallpaperDeeplink } from "@/lib/raycast";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
@@ -97,40 +98,53 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
     <div className={styles.shell}>
       <div className={styles.chrome}>
         <header className={styles.header}>
-          <div className={styles.crumbs}>
-            <Link href="/">Wallpaper Curator</Link>
-            <span className={styles.sep}>/</span>
-            <span className={styles.here}>gallery</span>
+          <div className={styles.headerTop}>
+            <div className={styles.crumbs}>
+              <Link href="/">Wallpaper Curator</Link>
+              <span className={styles.sep} aria-hidden="true">
+                /
+              </span>
+              <span className={styles.here}>Gallery</span>
+            </div>
+            <ThemeToggle />
           </div>
-          <div className={`${styles.summary} dim`}>
+          <p className={`${styles.summary} dim`} id="gallery-count">
             {filtered.length} wallpaper{filtered.length === 1 ? "" : "s"}
             {query ? ` · filter “${query}”` : ""}
-          </div>
+          </p>
           <div className={styles.row}>
+            <label className={styles.srOnly} htmlFor="gallery-search">
+              Search wallpapers
+            </label>
             <input
+              id="gallery-search"
               className={styles.search}
               type="search"
-              placeholder="search…"
+              placeholder="Search artist or title…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoComplete="off"
+              enterKeyHint="search"
             />
+            <label className={styles.srOnly} htmlFor="gallery-sort">
+              Sort wallpapers
+            </label>
             <select
+              id="gallery-sort"
               className={styles.sort}
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              title="Sort"
             >
-              <option value="name-asc">name A–Z</option>
-              <option value="name-desc">name Z–A</option>
-              <option value="date-desc">date newest</option>
-              <option value="date-asc">date oldest</option>
-              <option value="size-desc">size largest</option>
-              <option value="size-asc">size smallest</option>
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="date-desc">Date newest</option>
+              <option value="date-asc">Date oldest</option>
+              <option value="size-desc">Size largest</option>
+              <option value="size-asc">Size smallest</option>
             </select>
             <button
               type="button"
-              title="Smaller"
+              aria-label="Zoom out"
               disabled={zoomIdx <= 0}
               onClick={() => setZoom(ZOOM_STEPS[Math.max(0, zoomIdx - 1)])}
             >
@@ -138,7 +152,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
             </button>
             <button
               type="button"
-              title="Larger"
+              aria-label="Zoom in"
               disabled={zoomIdx >= ZOOM_STEPS.length - 1}
               onClick={() =>
                 setZoom(
@@ -152,8 +166,11 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
         </header>
       </div>
 
+      <main id="main" aria-labelledby="gallery-count">
       {filtered.length === 0 ? (
-        <div className={styles.empty}>// empty</div>
+        <div className={styles.empty} role="status">
+          No wallpapers match your search.
+        </div>
       ) : (
         <div
           className={styles.grid}
@@ -172,6 +189,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               }}
               role="button"
               tabIndex={0}
+              aria-label={`Open ${w.artist} — ${w.name}`}
             >
               <div className={styles.thumb}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -193,6 +211,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                   <a
                     href={wallpaperDeeplink(w.url)}
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={`Set ${w.name} as wallpaper with Raycast`}
                   >
                     wall
                   </a>
@@ -202,6 +221,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                     target="_blank"
                     rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={`Download ${w.name}`}
                   >
                     dl
                   </a>
@@ -211,21 +231,38 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
           ))}
         </div>
       )}
+      </main>
 
       {viewing && viewerIndex != null && (
-        <div className={styles.viewer} role="dialog" aria-modal="true">
+        <div
+          className={styles.viewer}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${viewing.artist} — ${viewing.name}`}
+        >
           <div className={styles.bar}>
-            <span className={styles.title}>
+            <span className={styles.title} id="viewer-title">
               {viewing.artist} — {viewing.name}
             </span>
             <span className={`${styles.count} dim`}>
               {viewerIndex + 1} / {filtered.length}
             </span>
-            <a href={wallpaperDeeplink(viewing.url)}>wall</a>
-            <a href={viewing.url} download target="_blank" rel="noreferrer">
+            <a
+              href={wallpaperDeeplink(viewing.url)}
+              aria-label="Set as wallpaper with Raycast"
+            >
+              wall
+            </a>
+            <a
+              href={viewing.url}
+              download
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download original"
+            >
               dl
             </a>
-            <button type="button" onClick={closeViewer}>
+            <button type="button" onClick={closeViewer} aria-label="Close viewer">
               close
             </button>
           </div>
@@ -233,7 +270,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
             <button
               type="button"
               className={styles.nav}
-              aria-label="Previous"
+              aria-label="Previous wallpaper"
               disabled={viewerIndex <= 0}
               onClick={() => setViewerIndex(viewerIndex - 1)}
             >
@@ -247,19 +284,22 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
             <button
               type="button"
               className={styles.nav}
-              aria-label="Next"
+              aria-label="Next wallpaper"
               disabled={viewerIndex >= filtered.length - 1}
               onClick={() => setViewerIndex(viewerIndex + 1)}
             >
               ›
             </button>
           </div>
-          <div className={styles.film}>
+          <div className={styles.film} role="list" aria-label="Wallpaper filmstrip">
             {filtered.map((w, i) => (
               <button
                 key={w.id}
                 type="button"
+                role="listitem"
                 className={i === viewerIndex ? styles.filmActive : undefined}
+                aria-label={`${w.artist} — ${w.name}`}
+                aria-current={i === viewerIndex ? "true" : undefined}
                 onClick={() => setViewerIndex(i)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

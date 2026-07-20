@@ -185,7 +185,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               <div className={styles.thumb}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={thumbUrl(w.url, Math.max(500, zoom * 2))}
+                  src={thumbUrl(
+                    w.url,
+                    cols <= 1 ? 960 : cols === 2 ? 500 : 330,
+                  )}
                   alt=""
                   loading="lazy"
                   decoding="async"

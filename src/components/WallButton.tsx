@@ -19,6 +19,7 @@ type Props = {
 };
 
 type Mode = "pending" | "raycast" | "share";
+type SheetKind = "guide" | "https";
 
 export function WallButton({
   imageUrl,
@@ -29,14 +30,13 @@ export function WallButton({
   const [mode, setMode] = useState<Mode>("pending");
   const [busy, setBusy] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetKind, setSheetKind] = useState<SheetKind>("guide");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [shareFile, setShareFile] = useState<File | null>(null);
-  const [shareReady, setShareReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setMode(canUseRaycastWallpaper() ? "raycast" : "share");
-    setShareReady(canNativeShareFiles());
   }, []);
 
   useEffect(() => {
@@ -48,7 +48,24 @@ export function WallButton({
   const label =
     mode === "raycast"
       ? `Set ${title} as wallpaper with Raycast`
-      : `Share ${title} to set as wallpaper`;
+      : `Save ${title} and set as wallpaper`;
+
+  async function ensurePrepared() {
+    if (shareFile && previewUrl) return shareFile;
+    const file = await prepareWallpaperFile(thumbUrl(imageUrl, 1920), title);
+    setShareFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return objectUrl;
+    });
+    return file;
+  }
+
+  function showGuide() {
+    setSheetKind("guide");
+    setSheetOpen(true);
+  }
 
   async function openShareFlow(e: React.MouseEvent) {
     onClickCapture?.(e);
@@ -59,53 +76,60 @@ export function WallButton({
     setBusy(true);
     setError(null);
     try {
-      const file = await prepareWallpaperFile(thumbUrl(imageUrl, 1920), title);
-      setShareFile(file);
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return objectUrl;
-      });
+      const file = await ensurePrepared();
 
-      // Prefer the native sheet immediately (needs HTTPS / secure context).
-      if (canNativeShareFiles()) {
-        const result = await shareWallpaperFile(file);
-        if (result === "shared" || result === "cancelled") {
-          setBusy(false);
-          return;
-        }
+      if (!canNativeShareFiles()) {
+        setSheetKind("https");
+        setSheetOpen(true);
+        return;
       }
 
-      // Stay in-app — never open a new tab. Sheet can re-trigger share.
-      setSheetOpen(true);
+      const result = await shareWallpaperFile(file);
+      // Safari’s sheet offers Save Image, not Use as Wallpaper.
+      // After save (or dismiss), walk them through Photos.
+      if (result === "shared") {
+        showGuide();
+      } else if (result === "cancelled") {
+        // They may have saved before cancelling — still show the path.
+        showGuide();
+      } else {
+        showGuide();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not prepare image");
-      setSheetOpen(true);
+      showGuide();
     } finally {
       setBusy(false);
     }
   }
 
   async function retryShare() {
-    if (!shareFile || busy) return;
+    if (busy) return;
     setBusy(true);
     setError(null);
     try {
       if (!canNativeShareFiles()) {
-        setError(
-          "Share needs a secure page (HTTPS). Use the address starting with https://, or long-press the image below.",
-        );
+        setSheetKind("https");
+        setError("Share needs HTTPS. Long-press the image below instead.");
         return;
       }
-      const result = await shareWallpaperFile(shareFile);
-      if (result === "unsupported") {
-        setError("This browser can’t share image files. Long-press the image instead.");
+      const file = await ensurePrepared();
+      const result = await shareWallpaperFile(file);
+      if (result === "shared" || result === "cancelled") {
+        setSheetKind("guide");
+      } else if (result === "unsupported") {
+        setError("This browser can’t share files. Long-press the image instead.");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Share failed");
     } finally {
       setBusy(false);
     }
+  }
+
+  function openPhotos() {
+    // Undocumented but widely used — opens the Photos app.
+    window.location.href = "photos-redirect://";
   }
 
   function closeSheet() {
@@ -148,7 +172,9 @@ export function WallButton({
         >
           <div className={styles.tipCard}>
             <h2 id="wall-tip-title" className={styles.tipTitle}>
-              Set as wallpaper
+              {sheetKind === "https"
+                ? "One more step"
+                : "Almost there — set wallpaper"}
             </h2>
 
             {previewUrl && (
@@ -160,11 +186,33 @@ export function WallButton({
               />
             )}
 
-            <p className={styles.tipLead}>
-              {shareReady
-                ? "Tap Share to open iOS — look for Use as Wallpaper."
-                : "This page isn’t HTTPS yet, so Safari blocked Share. Long-press the image → Share → Use as Wallpaper."}
-            </p>
+            {sheetKind === "https" ? (
+              <p className={styles.tipLead}>
+                Long-press the image → <strong>Share</strong> →{" "}
+                <strong>Save Image</strong>, then follow the Photos steps below.
+              </p>
+            ) : (
+              <>
+                <p className={styles.tipLead}>
+                  Safari only offers <strong>Save Image</strong> here — Apple
+                  keeps <strong>Use as Wallpaper</strong> inside Photos.
+                </p>
+                <ol className={styles.tipSteps}>
+                  <li>
+                    In the share sheet, tap <strong>Save Image</strong>.
+                  </li>
+                  <li>
+                    Open <strong>Photos</strong> and select the painting
+                    (usually newest).
+                  </li>
+                  <li>
+                    Tap <strong>Share</strong> →{" "}
+                    <strong>Use as Wallpaper</strong>.
+                  </li>
+                  <li>Choose Lock Screen, Home Screen, or both.</li>
+                </ol>
+              </>
+            )}
 
             {error && <p className={styles.tipError}>{error}</p>}
 
@@ -172,17 +220,24 @@ export function WallButton({
               <button
                 type="button"
                 className={styles.tipClose}
-                onClick={retryShare}
-                disabled={busy || !shareFile}
+                onClick={openPhotos}
               >
-                {busy ? "Preparing…" : "Share"}
+                Open Photos
+              </button>
+              <button
+                type="button"
+                className={styles.tipSecondary}
+                onClick={retryShare}
+                disabled={busy}
+              >
+                {busy ? "…" : "Share again"}
               </button>
               <button
                 type="button"
                 className={styles.tipSecondary}
                 onClick={closeSheet}
               >
-                Close
+                Done
               </button>
             </div>
           </div>

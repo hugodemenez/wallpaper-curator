@@ -2,12 +2,24 @@
 
 A Vercel-deployable gallery of curated **public-domain** wallpapers — browse the collection, download, or set via Raycast / iOS share.
 
+**Live:** [wallpaper-curator.vercel.app](https://wallpaper-curator.vercel.app)
+
 - **Landing:** `/`
 - **Gallery:** `/gallery`
 - **Catalog:** `data/wallpapers.yaml`
 - **MCP (agents):** `/api/mcp`
 - **Agent guide:** [`/agents.md`](https://wallpaper-curator.vercel.app/agents.md) (`AGENTS.md`)
 - **Raycast companion:** `raycast-extension/`
+
+## Screenshots
+
+Landing — full-bleed hero and gallery tease:
+
+![Wallpaper Curator landing page](docs/screenshots/landing-desktop.jpg)
+
+Gallery — search, sort, column density, wall / download:
+
+![Wallpaper Curator gallery](docs/screenshots/gallery-desktop.jpg)
 
 ## Local development
 

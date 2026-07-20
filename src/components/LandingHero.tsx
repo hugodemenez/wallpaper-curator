@@ -161,8 +161,22 @@ export function LandingHero({ hero, previews }: Props) {
             <p className={styles.teaseBody}>
               Point Cursor, Claude, or any MCP client at the public Streamable
               HTTP endpoint — search the catalog, read facets, and fetch image
-              URLs without scraping the page.
+              URLs without scraping the page. Full agent instructions live at{" "}
+              <a className={styles.mcpInlineLink} href="/agents.md">
+                /agents.md
+              </a>
+              .
             </p>
+          </div>
+
+          <div className={styles.mcpEndpoint}>
+            <p className={styles.mcpLabel}>Agent guide</p>
+            <div className={styles.mcpRow}>
+              <code className={styles.mcpCode}>{SITE_URL}/agents.md</code>
+              <a className={styles.mcpCopy} href="/agents.md">
+                Open
+              </a>
+            </div>
           </div>
 
           <div className={styles.mcpEndpoint}>

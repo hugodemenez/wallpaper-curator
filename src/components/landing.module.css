@@ -367,6 +367,19 @@
   color: var(--fg);
 }
 
+.mcpInlineLink {
+  color: var(--wood);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+a.mcpCopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .stripItem:hover {
     border-color: var(--wood);

@@ -6,6 +6,7 @@ A Vercel-deployable gallery of curated **public-domain** wallpapers — browse t
 - **Gallery:** `/gallery`
 - **Catalog:** `data/wallpapers.yaml`
 - **MCP (agents):** `/api/mcp`
+- **Agent guide:** [`/agents.md`](https://wallpaper-curator.vercel.app/agents.md) (`AGENTS.md`)
 - **Raycast companion:** `raycast-extension/`
 
 ## Local development

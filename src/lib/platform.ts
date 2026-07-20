@@ -1,19 +1,22 @@
-/** Raycast wallpaper command is macOS-only (AppleScript). */
-export function canUseRaycastWallpaper(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-  const isMac = /Macintosh|Mac OS X/i.test(ua);
-  const isIpadDesktopUa =
-    navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-  return isMac && !isIpadDesktopUa;
-}
-
 export function isAppleMobile(): boolean {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent;
+  // iPhone UA contains "like Mac OS X" — do not treat that as desktop Mac.
   if (/iPhone|iPad|iPod/i.test(ua)) return true;
-  // iPadOS 13+ reports as Mac with touch
+  // iPadOS 13+ can report as MacIntel with touch
   return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+}
+
+/**
+ * Raycast wallpaper command uses AppleScript — macOS desktop only.
+ * iOS Raycast cannot run that command; never offer raycast:// there.
+ */
+export function canUseRaycastWallpaper(): boolean {
+  if (typeof navigator === "undefined") return false;
+  if (isAppleMobile()) return false;
+  const ua = navigator.userAgent;
+  // Require Macintosh (desktop), not merely "Mac OS X" (also in iOS UAs).
+  return /Macintosh/i.test(ua) && !/Mobile/i.test(ua);
 }
 
 export function canShareFiles(): boolean {

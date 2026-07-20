@@ -18,13 +18,17 @@ type Props = {
   onClickCapture?: (e: React.MouseEvent) => void;
 };
 
+type Mode = "pending" | "raycast" | "share" | "open";
+
 export function WallButton({
   imageUrl,
   title,
   className,
   onClickCapture,
 }: Props) {
-  const [mode, setMode] = useState<"raycast" | "share" | "open">("raycast");
+  // Default to share — never emit raycast:// before we know the platform
+  // (iPhone UAs contain "like Mac OS X" and used to false-positive as Mac).
+  const [mode, setMode] = useState<Mode>("pending");
   const [busy, setBusy] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
 
@@ -48,7 +52,6 @@ export function WallButton({
     if (busy) return;
     setBusy(true);
     try {
-      // Phone screens don't need 30MB museum masters — 1920px is plenty.
       const shareUrl = thumbUrl(imageUrl, 1920);
       const result = await shareImageForWallpaper(shareUrl, title);
       if (result === "shared" || result === "opened") {
@@ -81,8 +84,8 @@ export function WallButton({
         type="button"
         className={`${styles.wallBtn} ${className ?? ""}`}
         aria-label={label}
-        aria-busy={busy}
-        disabled={busy}
+        aria-busy={busy || mode === "pending"}
+        disabled={busy || mode === "pending"}
         onClick={onShareClick}
       >
         {busy ? "…" : "wall"}
@@ -100,13 +103,21 @@ export function WallButton({
               Set as wallpaper
             </h2>
             <ol className={styles.tipSteps}>
-              <li>In the share sheet, choose <strong>Save Image</strong> (or Save to Photos).</li>
-              <li>Open <strong>Photos</strong>, select the painting.</li>
-              <li>Tap <strong>Share</strong> → <strong>Use as Wallpaper</strong>.</li>
+              <li>
+                In the share sheet, choose <strong>Save Image</strong> (or Save
+                to Photos).
+              </li>
+              <li>
+                Open <strong>Photos</strong>, select the painting.
+              </li>
+              <li>
+                Tap <strong>Share</strong> → <strong>Use as Wallpaper</strong>.
+              </li>
               <li>Choose Lock Screen, Home Screen, or both.</li>
             </ol>
             <p className={styles.tipNote}>
-              iPhone can’t set a wallpaper from a website directly — Photos is the reliable path.
+              iPhone can’t set a wallpaper from a website directly — Photos is
+              the reliable path. (Raycast on iOS can’t set desktop wallpaper.)
             </p>
             <button
               type="button"

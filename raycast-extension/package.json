@@ -1,0 +1,42 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "wallpaper-curator",
+  "title": "Wallpaper Curator",
+  "description": "Download an image URL and set it as your macOS desktop wallpaper. Companion to the Wallpaper Curator gallery.",
+  "icon": "icon.png",
+  "author": "hugodemenez",
+  "categories": ["System", "Media"],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "set-wallpaper",
+      "title": "Set Wallpaper from URL",
+      "description": "Download an image URL and set it as the desktop wallpaper",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "url",
+          "placeholder": "Image URL",
+          "type": "text",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.93.0",
+    "@raycast/utils": "^1.17.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}

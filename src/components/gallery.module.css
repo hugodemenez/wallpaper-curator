@@ -1,0 +1,282 @@
+.shell {
+  min-height: 100vh;
+  padding: 12px;
+  background: var(--bg);
+}
+
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  padding-bottom: 10px;
+  margin-bottom: 2px;
+}
+
+.header {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  background: var(--bg);
+}
+
+.crumbs {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.crumbs a {
+  color: var(--dim);
+}
+
+.crumbs a:hover {
+  color: var(--fg);
+}
+
+.sep {
+  color: var(--mute);
+  margin: 0 4px;
+}
+
+.here {
+  color: var(--fg);
+}
+
+.summary {
+  margin-top: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.search {
+  flex: 1;
+  min-width: 120px;
+  background: #000;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 4px 8px;
+  outline: none;
+  appearance: none;
+}
+
+.search::placeholder {
+  color: var(--mute);
+}
+
+.sort {
+  flex: 0 1 auto;
+  min-width: 150px;
+  background: #000;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 4px 8px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 220px), 1fr));
+  gap: 10px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #000;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  background: var(--surface);
+}
+
+.card:hover .thumb img {
+  opacity: 1;
+}
+
+.thumb {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-bottom: 1px solid var(--mute);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.88;
+  transition: opacity 160ms ease;
+}
+
+.meta {
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.name {
+  font-size: 11px;
+  word-break: break-word;
+  color: var(--fg);
+}
+
+.size {
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.actions a {
+  font-size: 11px;
+}
+
+.empty {
+  border: 1px dashed var(--mute);
+  padding: 24px;
+  color: var(--mute);
+}
+
+.viewer {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.94);
+  flex-direction: column;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  flex-shrink: 0;
+}
+
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  padding: 8px;
+}
+
+.stage img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  justify-self: center;
+  user-select: none;
+}
+
+.nav {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--dim);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+.nav:disabled {
+  opacity: 0.2;
+  cursor: default;
+  border-color: transparent;
+}
+
+.film {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  padding: 8px 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  scrollbar-width: thin;
+  scrollbar-color: #333 #000;
+}
+
+.film button {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: #000;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity 140ms ease,
+    border-color 140ms ease;
+}
+
+.film button:hover {
+  opacity: 0.85;
+  border-color: #666;
+}
+
+.filmActive {
+  opacity: 1 !important;
+  border-color: #fff !important;
+}
+
+.film button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+:global(body.viewer-open) {
+  overflow: hidden;
+}

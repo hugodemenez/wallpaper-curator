@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { wallpaperDeeplink } from "@/lib/raycast";
+import { WallButton } from "@/components/WallButton";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
@@ -208,13 +208,11 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                   {w.date} · {fmtSize(w.size)} · {w.tones.join(", ")}
                 </div>
                 <div className={styles.actions}>
-                  <a
-                    href={wallpaperDeeplink(w.url)}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Set ${w.name} as wallpaper with Raycast`}
-                  >
-                    wall
-                  </a>
+                  <WallButton
+                    imageUrl={w.url}
+                    title={`${w.artist} — ${w.name}`}
+                    onClickCapture={(e) => e.stopPropagation()}
+                  />
                   <a
                     href={w.url}
                     download
@@ -247,12 +245,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
             <span className={`${styles.count} dim`}>
               {viewerIndex + 1} / {filtered.length}
             </span>
-            <a
-              href={wallpaperDeeplink(viewing.url)}
-              aria-label="Set as wallpaper with Raycast"
-            >
-              wall
-            </a>
+            <WallButton
+              imageUrl={viewing.url}
+              title={`${viewing.artist} — ${viewing.name}`}
+            />
             <a
               href={viewing.url}
               download

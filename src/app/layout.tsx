@@ -37,6 +37,8 @@ export const metadata: Metadata = {
       "Curated public-domain paintings in a quiet, home-like gallery.",
     type: "website",
     siteName: "Wallpaper Curator",
+    url: "https://wallpaper-curator.vercel.app",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",

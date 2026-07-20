@@ -1,11 +1,11 @@
 # Wallpaper Curator
 
-A Vercel-deployable, terminal-styled gallery of curated **public-domain** wallpapers.
-Inspired by the local pictures-gallery B&W UI — black ground, mono type, zoom / search / sort, `wall` + `dl`.
+A Vercel-deployable gallery of curated **public-domain** wallpapers — browse the collection, download, or set via Raycast / iOS share.
 
 - **Landing:** `/`
 - **Gallery:** `/gallery`
 - **Catalog:** `data/wallpapers.yaml`
+- **MCP (agents):** `/api/mcp`
 - **Raycast companion:** `raycast-extension/`
 
 ## Local development
@@ -16,6 +16,53 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## MCP for agents
+
+Agents can discover and search the library over Streamable HTTP:
+
+`https://wallpaper-curator.vercel.app/api/mcp`
+
+**Tools**
+
+| Tool | Purpose |
+| --- | --- |
+| `list_facets` | Catalog size + artists / tones / sources |
+| `search_wallpapers` | Free-text + artist/tone filters |
+| `get_wallpaper` | One entry by id (image + thumb URLs) |
+
+**Resource:** `wallpaper://catalog` — full catalog JSON.
+
+### Cursor (`~/.cursor/mcp.json`)
+
+```json
+{
+  "mcpServers": {
+    "wallpaper-curator": {
+      "url": "https://wallpaper-curator.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+Locally while developing: `"url": "http://localhost:3000/api/mcp"`.
+
+### Claude Desktop / stdio-only clients
+
+```json
+{
+  "mcpServers": {
+    "wallpaper-curator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://wallpaper-curator.vercel.app/api/mcp"
+      ]
+    }
+  }
+}
+```
 
 ## Edit the wallpaper catalog
 

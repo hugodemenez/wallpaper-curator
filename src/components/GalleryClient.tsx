@@ -176,7 +176,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               <div className={styles.thumb}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={thumbUrl(w.url, Math.max(480, zoom * 2))}
+                  src={thumbUrl(w.url, Math.max(500, zoom * 2))}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -240,7 +240,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               ‹
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={viewing.url} alt={`${viewing.artist} — ${viewing.name}`} />
+            <img
+              src={thumbUrl(viewing.url, 1920)}
+              alt={`${viewing.artist} — ${viewing.name}`}
+            />
             <button
               type="button"
               className={styles.nav}

@@ -1,7 +1,8 @@
 import { loadWallpapers } from "@/lib/load-wallpapers";
+import { SITE_URL } from "@/lib/site";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 
-export const SITE_URL = "https://wallpaper-curator.vercel.app";
+export { SITE_URL };
 
 export type WallpaperCard = {
   id: string;

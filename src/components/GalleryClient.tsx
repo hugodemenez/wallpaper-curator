@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ViewerStage } from "@/components/ViewerStage";
 import { WallButton } from "@/components/WallButton";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
@@ -262,31 +263,15 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               close
             </button>
           </div>
-          <div className={styles.stage}>
-            <button
-              type="button"
-              className={styles.nav}
-              aria-label="Previous wallpaper"
-              disabled={viewerIndex <= 0}
-              onClick={() => setViewerIndex(viewerIndex - 1)}
-            >
-              ‹
-            </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={thumbUrl(viewing.url, 1920)}
-              alt={`${viewing.artist} — ${viewing.name}`}
-            />
-            <button
-              type="button"
-              className={styles.nav}
-              aria-label="Next wallpaper"
-              disabled={viewerIndex >= filtered.length - 1}
-              onClick={() => setViewerIndex(viewerIndex + 1)}
-            >
-              ›
-            </button>
-          </div>
+          <ViewerStage
+            src={thumbUrl(viewing.url, 1920)}
+            alt={`${viewing.artist} — ${viewing.name}`}
+            canPrev={viewerIndex > 0}
+            canNext={viewerIndex < filtered.length - 1}
+            onPrev={() => setViewerIndex(viewerIndex - 1)}
+            onNext={() => setViewerIndex(viewerIndex + 1)}
+            onClose={closeViewer}
+          />
           <div className={styles.film} role="list" aria-label="Wallpaper filmstrip">
             {filtered.map((w, i) => (
               <button

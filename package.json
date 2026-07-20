@@ -4,11 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/generate-og.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "og": "node scripts/generate-og.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",

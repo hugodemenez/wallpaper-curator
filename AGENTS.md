@@ -81,7 +81,7 @@ Local MCP while developing: `http://localhost:3000/api/mcp`
 - Keep the landing hero sparse (brand, one headline, one support line, CTAs).
 - MCP stays public and unauthenticated; do not add secrets to the catalog path.
 - Wikimedia thumbs must use allowed widths from `WIKIMEDIA_THUMB_STEPS` in `src/lib/wallpapers.ts`.
-- Social card image is static `public/og.jpg` (regenerate with `npm run og` / `prebuild`).
+- OG/Twitter images are generated in `src/app/opengraph-image.tsx` / `twitter-image.tsx` (JPEG via sharp).
 
 ### Deploy
 

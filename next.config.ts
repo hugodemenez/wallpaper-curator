@@ -8,20 +8,6 @@ const nextConfig: NextConfig = {
     "https://192.168.0.127",
     "https://localhost",
   ],
-  async headers() {
-    return [
-      {
-        source: "/og.jpg",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=604800",
-          },
-          { key: "Content-Type", value: "image/jpeg" },
-        ],
-      },
-    ];
-  },
   images: {
     remotePatterns: [
       {

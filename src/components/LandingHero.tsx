@@ -3,8 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { SITE_URL } from "@/lib/site";
 import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./landing.module.css";
+
+const MCP_URL = `${SITE_URL}/api/mcp`;
+
+const CURSOR_SNIPPET = `{
+  "mcpServers": {
+    "wallpaper-curator": {
+      "url": "${MCP_URL}"
+    }
+  }
+}`;
 
 type Props = {
   hero: Wallpaper;
@@ -14,6 +25,7 @@ type Props = {
 export function LandingHero({ hero, previews }: Props) {
   const [shown, setShown] = useState(false);
   const [imageIn, setImageIn] = useState(false);
+  const [copied, setCopied] = useState<"url" | "snippet" | null>(null);
 
   useEffect(() => {
     const reduce =
@@ -33,6 +45,16 @@ export function LandingHero({ hero, previews }: Props) {
       window.clearTimeout(textTimer);
     };
   }, []);
+
+  async function copy(kind: "url" | "snippet", value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(kind);
+      window.setTimeout(() => setCopied(null), 1600);
+    } catch {
+      setCopied(null);
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -124,6 +146,66 @@ export function LandingHero({ hero, previews }: Props) {
             <Link className={styles.primary} href="/gallery">
               Browse all wallpapers
             </Link>
+            <a className={styles.secondary} href="#mcp">
+              Connect an agent
+            </a>
+          </div>
+        </section>
+
+        <section id="mcp" className={styles.mcp} aria-labelledby="mcp-title">
+          <div className={styles.mcpIntro}>
+            <p className={styles.teaseEyebrow}>For agents</p>
+            <h2 id="mcp-title" className={styles.teaseTitle}>
+              Discover the library over MCP
+            </h2>
+            <p className={styles.teaseBody}>
+              Point Cursor, Claude, or any MCP client at the public Streamable
+              HTTP endpoint — search the catalog, read facets, and fetch image
+              URLs without scraping the page.
+            </p>
+          </div>
+
+          <div className={styles.mcpEndpoint}>
+            <p className={styles.mcpLabel}>Endpoint</p>
+            <div className={styles.mcpRow}>
+              <code className={styles.mcpCode}>{MCP_URL}</code>
+              <button
+                type="button"
+                className={styles.mcpCopy}
+                onClick={() => copy("url", MCP_URL)}
+              >
+                {copied === "url" ? "Copied" : "Copy"}
+              </button>
+            </div>
+          </div>
+
+          <ul className={styles.mcpTools}>
+            <li>
+              <code>list_facets</code> — artists, tones, sources
+            </li>
+            <li>
+              <code>search_wallpapers</code> — free text + filters
+            </li>
+            <li>
+              <code>get_wallpaper</code> — one painting by id
+            </li>
+            <li>
+              <code>wallpaper://catalog</code> — full catalog resource
+            </li>
+          </ul>
+
+          <div className={styles.mcpEndpoint}>
+            <p className={styles.mcpLabel}>Cursor · ~/.cursor/mcp.json</p>
+            <div className={styles.mcpRow}>
+              <pre className={styles.mcpPre}>{CURSOR_SNIPPET}</pre>
+              <button
+                type="button"
+                className={styles.mcpCopy}
+                onClick={() => copy("snippet", CURSOR_SNIPPET)}
+              >
+                {copied === "snippet" ? "Copied" : "Copy"}
+              </button>
+            </div>
           </div>
         </section>
       </main>

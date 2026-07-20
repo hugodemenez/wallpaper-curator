@@ -263,6 +263,108 @@
 
 .teaseCta {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── MCP discovery (below fold) ── */
+
+.mcp {
+  padding: clamp(48px, 10vw, 96px) clamp(20px, 5vw, 48px);
+  background: var(--bg-deep);
+  border-top: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.mcpIntro {
+  max-width: 42ch;
+  margin-bottom: clamp(28px, 5vw, 40px);
+}
+
+.mcpEndpoint {
+  max-width: 40rem;
+  margin-bottom: 28px;
+}
+
+.mcpLabel {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wood);
+}
+
+.mcpRow {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.mcpCode,
+.mcpPre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklch, var(--surface) 70%, transparent);
+  color: var(--fg);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  overflow-x: auto;
+  text-wrap: nowrap;
+}
+
+.mcpPre {
+  text-wrap: pretty;
+  white-space: pre;
+}
+
+.mcpCopy {
+  flex-shrink: 0;
+  min-height: var(--hit);
+  min-width: var(--hit);
+  padding: 12px 16px;
+  border: 1px solid var(--wood);
+  background: transparent;
+  color: var(--wood);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.mcpCopy:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mcpCopy:hover {
+    background: color-mix(in oklch, var(--wood) 12%, transparent);
+  }
+}
+
+.mcpTools {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  max-width: 40rem;
+  display: grid;
+  gap: 10px;
+  color: var(--dim);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.mcpTools code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--fg);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -304,7 +406,9 @@
 }
 
 @media (max-width: 640px) {
-  .cta {
+  .cta,
+  .teaseCta,
+  .mcpRow {
     flex-direction: column;
     align-items: stretch;
   }
@@ -315,8 +419,15 @@
   }
 
   .primary,
-  .secondary {
+  .secondary,
+  .mcpCopy {
     width: 100%;
+  }
+
+  .mcpCode {
+    text-wrap: pretty;
+    white-space: normal;
+    word-break: break-all;
   }
 }
 

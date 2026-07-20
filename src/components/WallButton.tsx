@@ -104,20 +104,18 @@ export function WallButton({
             </h2>
             <ol className={styles.tipSteps}>
               <li>
-                In the share sheet, choose <strong>Save Image</strong> (or Save
-                to Photos).
+                In the share sheet, scroll the actions and tap{" "}
+                <strong>Use as Wallpaper</strong> if you see it.
               </li>
               <li>
-                Open <strong>Photos</strong>, select the painting.
+                Or tap <strong>Save Image</strong>, then open Photos → share the
+                painting → <strong>Use as Wallpaper</strong>.
               </li>
-              <li>
-                Tap <strong>Share</strong> → <strong>Use as Wallpaper</strong>.
-              </li>
-              <li>Choose Lock Screen, Home Screen, or both.</li>
+              <li>Pick Lock Screen, Home Screen, or both.</li>
             </ol>
             <p className={styles.tipNote}>
-              iPhone can’t set a wallpaper from a website directly — Photos is
-              the reliable path. (Raycast on iOS can’t set desktop wallpaper.)
+              Safari can’t set wallpaper by itself — iOS shows that action in
+              the share sheet when it recognizes a photo.
             </p>
             <button
               type="button"

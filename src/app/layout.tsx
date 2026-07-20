@@ -18,6 +18,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://wallpaper-curator.vercel.app"),
   title: {
     default: "Wallpaper Curator",
     template: "%s · Wallpaper Curator",
@@ -35,6 +36,13 @@ export const metadata: Metadata = {
     description:
       "Curated public-domain paintings in a quiet, home-like gallery.",
     type: "website",
+    siteName: "Wallpaper Curator",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wallpaper Curator",
+    description:
+      "Curated public-domain paintings in a quiet, home-like gallery.",
   },
 };
 

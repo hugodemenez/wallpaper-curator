@@ -8,7 +8,7 @@ import { WallButton } from "@/components/WallButton";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
-const ZOOM_STEPS = [140, 180, 220, 280, 340, 420];
+const COL_OPTIONS = [1, 2, 3, 4] as const;
 
 type SortKey =
   | "name-asc"
@@ -18,16 +18,10 @@ type SortKey =
   | "size-desc"
   | "size-asc";
 
-function nearestZoom(n: number) {
-  return ZOOM_STEPS.reduce((best, z) =>
-    Math.abs(z - n) < Math.abs(best - n) ? z : best,
-  );
-}
-
 export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("date-desc");
-  const [zoom, setZoom] = useState(220);
+  const [cols, setCols] = useState<number>(2);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const filtered = useMemo(() => {
@@ -62,8 +56,6 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
     });
     return sorted;
   }, [wallpapers, query, sort]);
-
-  const zoomIdx = ZOOM_STEPS.indexOf(nearestZoom(zoom));
 
   const openViewer = useCallback((id: string) => {
     const i = filtered.findIndex((w) => w.id === id);
@@ -143,26 +135,24 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               <option value="size-desc">Size largest</option>
               <option value="size-asc">Size smallest</option>
             </select>
-            <button
-              type="button"
-              aria-label="Zoom out"
-              disabled={zoomIdx <= 0}
-              onClick={() => setZoom(ZOOM_STEPS[Math.max(0, zoomIdx - 1)])}
+            <div
+              className={styles.cols}
+              role="group"
+              aria-label="Number of columns"
             >
-              −
-            </button>
-            <button
-              type="button"
-              aria-label="Zoom in"
-              disabled={zoomIdx >= ZOOM_STEPS.length - 1}
-              onClick={() =>
-                setZoom(
-                  ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, zoomIdx + 1)],
-                )
-              }
-            >
-              +
-            </button>
+              {COL_OPTIONS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={cols === n ? styles.colsActive : undefined}
+                  aria-pressed={cols === n}
+                  aria-label={`${n} column${n === 1 ? "" : "s"}`}
+                  onClick={() => setCols(n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
       </div>
@@ -175,7 +165,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
       ) : (
         <div
           className={styles.grid}
-          style={{ ["--card-min" as string]: `${zoom}px` }}
+          style={{ ["--cols" as string]: String(cols) }}
         >
           {filtered.map((w) => (
             <article

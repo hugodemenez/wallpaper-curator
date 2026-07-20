@@ -111,9 +111,45 @@
   }
 }
 
+.cols {
+  display: flex;
+  flex: 1 1 100%;
+  gap: 6px;
+  min-height: var(--hit);
+}
+
+.cols button {
+  flex: 1;
+  min-width: var(--hit);
+  min-height: var(--hit);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 0;
+}
+
+.colsActive {
+  border-color: var(--wood) !important;
+  background: var(--wood) !important;
+  color: var(--on-wood) !important;
+}
+
+@media (min-width: 640px) {
+  .cols {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .cols button {
+    flex: 0 0 var(--hit);
+  }
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 220px), 1fr));
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
   gap: 10px;
 }
 

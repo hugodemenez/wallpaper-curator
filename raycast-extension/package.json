@@ -2,16 +2,25 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "wallpaper-curator",
   "title": "Wallpaper Curator",
-  "description": "Download an image URL and set it as your macOS desktop wallpaper. Companion to the Wallpaper Curator gallery.",
+  "description": "Browse the Wallpaper Curator public-domain gallery, download from the real source URL, and set it as your macOS desktop wallpaper.",
   "icon": "icon.png",
   "author": "hugodemenez",
-  "categories": ["System", "Media"],
+  "categories": [
+    "System",
+    "Media"
+  ],
   "license": "MIT",
   "commands": [
     {
+      "name": "browse-wallpapers",
+      "title": "Browse Wallpapers",
+      "description": "Search the curated catalog from wallpaper-curator.vercel.app and set a wallpaper",
+      "mode": "view"
+    },
+    {
       "name": "set-wallpaper",
       "title": "Set Wallpaper from URL",
-      "description": "Download an image URL and set it as the desktop wallpaper",
+      "description": "Download an image URL and set it as the desktop wallpaper (used by gallery wall deeplinks)",
       "mode": "no-view",
       "arguments": [
         {
@@ -23,6 +32,17 @@
       ]
     }
   ],
+  "preferences": [
+    {
+      "name": "apiBaseUrl",
+      "type": "textfield",
+      "required": false,
+      "title": "API Base URL",
+      "description": "Catalog API origin. Default is production; use http://localhost:3000 while developing the site.",
+      "default": "https://wallpaper-curator.vercel.app",
+      "placeholder": "https://wallpaper-curator.vercel.app"
+    }
+  ],
   "dependencies": {
     "@raycast/api": "^1.93.0",
     "@raycast/utils": "^1.17.0"
@@ -31,12 +51,15 @@
     "@raycast/eslint-config": "^1.0.11",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "prettier": "^3.9.6",
     "typescript": "^5.8.2"
   },
   "scripts": {
     "build": "ray build",
-    "dev": "ray develop",
-    "fix-lint": "ray lint --fix",
-    "lint": "ray lint"
+    "dev": "NODE_PATH=./node_modules ray develop",
+    "fix-lint": "NODE_PATH=./node_modules ray lint --fix",
+    "lint": "NODE_PATH=./node_modules ray lint"
   }
 }

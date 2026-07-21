@@ -68,7 +68,7 @@ export function searchWallpapers(opts: {
   const q = opts.query?.trim().toLowerCase() ?? "";
   const artist = opts.artist?.trim().toLowerCase() ?? "";
   const tone = opts.tone?.trim().toLowerCase() ?? "";
-  const limit = Math.min(Math.max(opts.limit ?? 20, 1), 50);
+  const limit = Math.min(Math.max(opts.limit ?? 20, 1), 200);
   const offset = Math.max(opts.offset ?? 0, 0);
 
   const filtered = loadWallpapers().filter((w) => {

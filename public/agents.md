@@ -10,11 +10,16 @@ Curated public-domain paintings for desktop wallpapers. Humans browse the galler
 | Gallery | https://wallpaper-curator.vercel.app/gallery |
 | This file | https://wallpaper-curator.vercel.app/agents.md |
 | MCP (Streamable HTTP) | https://wallpaper-curator.vercel.app/api/mcp |
+| Catalog API (Raycast) | https://wallpaper-curator.vercel.app/api/wallpapers |
 | Catalog source | `data/wallpapers.yaml` in this repo |
 
-## Prefer MCP
+## Prefer MCP / catalog API
 
-Connect any MCP client to the public endpoint. No auth.
+- Agents: MCP at `/api/mcp` (tools below).
+- Raycast extension: `GET /api/wallpapers` for the browse list, then downloads each painting’s `imageUrl` from the real source and sets the desktop via AppleScript.
+- Humans: https://wallpaper-curator.vercel.app/gallery — Mac **wall** deeplinks into the Raycast **Set Wallpaper from URL** command (extension must be installed via Store or `npm run dev` in `raycast-extension/`).
+
+The website does **not** embed Raycast; install the companion extension separately.
 
 ```json
 {

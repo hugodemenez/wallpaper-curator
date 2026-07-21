@@ -1,7 +1,12 @@
 # Wallpaper Curator — Raycast extension
 
-Set your macOS desktop wallpaper from any image URL. Companion to the
-[Wallpaper Curator](../) gallery (`wall` deeplinks).
+macOS companion for [Wallpaper Curator](https://wallpaper-curator.vercel.app).
+
+The website cannot embed Raycast itself — install this extension, then:
+
+- **Browse Wallpapers** in Raycast loads the live catalog from `GET /api/wallpapers`
+- Gallery **wall** buttons deeplink into **Set Wallpaper from URL**
+- Both paths download the **source image URL** (Wikimedia / museum) and set every desktop via AppleScript
 
 ## Requirements
 
@@ -14,26 +19,33 @@ Set your macOS desktop wallpaper from any image URL. Companion to the
 ```bash
 cd raycast-extension
 npm install
-npm run dev
+npm run dev          # ray develop — installs into Raycast as a local extension
 ```
 
-Raycast will load the extension in development mode. Try **Set Wallpaper from URL**
-with any direct image URL (e.g. a Wikimedia Commons upload link).
+1. Keep the site running if you point preferences at localhost (`npm run dev` in the repo root).
+2. In Raycast → Wallpaper Curator → Preferences → **API Base URL**:
+   - Production: `https://wallpaper-curator.vercel.app` (default)
+   - Local site: `http://localhost:3000`
+3. Run **Browse Wallpapers**, pick a painting → **Set as Wallpaper**.
+4. From the website gallery on Mac, click **wall** to exercise the deeplink command.
 
-## Publish
+## How it works
 
-When ready for the Raycast Store (author must be `hugodemenez`):
+1. Catalog: `GET {apiBaseUrl}/api/wallpapers` (JSON from `data/wallpapers.yaml`)
+2. Download: `fetch(imageUrl)` from the real source host
+3. Cache file under `~/.cache/wallpaper-curator/`
+4. AppleScript / System Events → `set picture` on every desktop
+
+## Publish to the Raycast Store
+
+Author in `package.json` must match your Raycast username (`hugodemenez`).
 
 ```bash
 cd raycast-extension
 npm install
+npm run lint
+npm run build
 npx ray submit
 ```
 
-Ensure `package.json` `author` matches your Raycast username.
-
-## How it works
-
-1. Downloads the image URL
-2. Saves under `~/.cache/wallpaper-curator/`
-3. Sets every desktop picture via AppleScript / System Events
+`ray submit` opens the Raycast publish flow (login required on your machine). After approval, Store users can install **Wallpaper Curator**; gallery `wall` deeplinks keep working because `author` / `name` / `set-wallpaper` stay stable.

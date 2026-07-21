@@ -99,20 +99,32 @@ Restart `npm run dev` (or redeploy) after YAML changes — the file is read on t
 
 ## Raycast extension
 
+The gallery’s Mac **wall** button opens Raycast via deeplink. The extension is **not** bundled inside the website (Raycast Store / local `ray develop` only).
+
 ```bash
 cd raycast-extension
 npm install
-npm run dev          # local install into Raycast
+npm run dev          # local install into Raycast — test Browse + wall deeplinks
 npx ray submit       # publish to Raycast Store (author: hugodemenez)
 ```
+
+- **Browse Wallpapers** → loads `GET https://wallpaper-curator.vercel.app/api/wallpapers`
+- **Set Wallpaper from URL** → used by gallery `wall` deeplinks
+- Downloads the painting’s own source URL, then AppleScript sets the desktop
 
 Gallery `wall` links use:
 
 `raycast://extensions/hugodemenez/wallpaper-curator/set-wallpaper?arguments=…`
 
-The deeplink passes the wallpaper’s **own** image URL (from YAML), which the extension downloads and sets via AppleScript.
-
 See [`raycast-extension/README.md`](raycast-extension/README.md).
+
+## Catalog API
+
+```bash
+curl https://wallpaper-curator.vercel.app/api/wallpapers
+curl 'https://wallpaper-curator.vercel.app/api/wallpapers?q=sea'
+curl 'https://wallpaper-curator.vercel.app/api/wallpapers?id=pissarro-garden-full-sunlight'
+```
 
 ## Deploy (Vercel)
 

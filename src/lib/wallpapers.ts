@@ -3,6 +3,7 @@ export type Wallpaper = {
   name: string;
   artist: string;
   date: string;
+  added: string;
   url: string;
   size?: number;
   tones: string[];

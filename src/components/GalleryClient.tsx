@@ -13,6 +13,8 @@ const COL_OPTIONS = [1, 2, 3, 4] as const;
 type SortKey =
   | "name-asc"
   | "name-desc"
+  | "added-desc"
+  | "added-asc"
   | "date-desc"
   | "date-asc"
   | "size-desc"
@@ -20,7 +22,7 @@ type SortKey =
 
 export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<SortKey>("date-desc");
+  const [sort, setSort] = useState<SortKey>("added-desc");
   const [cols, setCols] = useState<number>(2);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
@@ -29,7 +31,14 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
     let list = wallpapers;
     if (q) {
       list = list.filter((w) => {
-        const hay = [w.name, w.artist, w.date, w.tones.join(" "), w.source]
+        const hay = [
+          w.name,
+          w.artist,
+          w.date,
+          w.added,
+          w.tones.join(" "),
+          w.source,
+        ]
           .join(" ")
           .toLowerCase();
         return hay.includes(q);
@@ -42,6 +51,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
           return a.name.localeCompare(b.name);
         case "name-desc":
           return b.name.localeCompare(a.name);
+        case "added-asc":
+          return a.added.localeCompare(b.added) || a.name.localeCompare(b.name);
+        case "added-desc":
+          return b.added.localeCompare(a.added) || a.name.localeCompare(b.name);
         case "date-asc":
           return a.date.localeCompare(b.date) || a.name.localeCompare(b.name);
         case "date-desc":
@@ -128,10 +141,12 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
             >
+              <option value="added-desc">Recently added</option>
+              <option value="added-asc">First added</option>
               <option value="name-asc">Name A–Z</option>
               <option value="name-desc">Name Z–A</option>
-              <option value="date-desc">Date newest</option>
-              <option value="date-asc">Date oldest</option>
+              <option value="date-desc">Artwork newest</option>
+              <option value="date-asc">Artwork oldest</option>
               <option value="size-desc">Size largest</option>
               <option value="size-asc">Size smallest</option>
             </select>
@@ -199,7 +214,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                   {w.artist} — {w.name}
                 </div>
                 <div className={styles.size}>
-                  {w.date} · {fmtSize(w.size)} · {w.tones.join(", ")}
+                  Artwork {w.date} · Added {w.added}
+                </div>
+                <div className={styles.size}>
+                  {fmtSize(w.size)} · {w.tones.join(", ")}
                 </div>
                 <div className={styles.actions}>
                   <WallButton

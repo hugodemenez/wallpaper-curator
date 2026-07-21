@@ -2,12 +2,13 @@
 # For Daily Wallpapers "Family - Inspired by …" entries, originals are linked
 # (Wikimedia Commons / open museum), not the local AI files.
 #
-# Fields: id, name, artist, date, url, size (bytes, optional), tones, source
+# Fields: id, name, artist, date, added, url, size (bytes, optional), tones, source
 
 - id: pissarro-garden-full-sunlight
   name: Garden in Full Sunlight
   artist: Camille Pissarro
   date: "1876"
+  added: "2026-07-11"
   url: https://upload.wikimedia.org/wikipedia/commons/6/6e/Camille_Pissarro%2C_Garden_in_Full_Sunlight_%28Le_Jardin_au_grand_soleil%2C_Pontoise%29%2C_1876%2C_BF324%2C_Barnes_Foundation.jpg
   size: 3695244
   tones: [green, gold, soft]
@@ -17,6 +18,7 @@
   name: Northern Landscape, Spring
   artist: Caspar David Friedrich
   date: "1825"
+  added: "2026-07-11"
   url: https://upload.wikimedia.org/wikipedia/commons/6/65/Caspar_David_Friedrich_-_Nordische_Landschaft%2C_Fr%C3%BChling.jpg
   size: 30267712
   tones: [grey, cold, mist]
@@ -26,6 +28,7 @@
   name: Spring Landscape
   artist: Peder Mørk Mønsted
   date: "1910"
+  added: "2026-07-11"
   url: https://upload.wikimedia.org/wikipedia/commons/b/be/Peder_M%C3%B8nsted_-_Spring_Landskab.jpg
   size: 4930914
   tones: [green, light, fresh]
@@ -35,6 +38,7 @@
   name: Lake Lucerne
   artist: Albert Bierstadt
   date: "1858"
+  added: "2026-07-12"
   url: https://upload.wikimedia.org/wikipedia/commons/b/b7/Albert_Bierstadt_-_Lake_Lucerne_-_Google_Art_Project.jpg
   tones: [blue, alpine, vast]
   source: Wikimedia Commons
@@ -43,6 +47,7 @@
   name: In the Roads, Evening
   artist: Ivan Aivazovsky
   date: "1867"
+  added: "2026-07-12"
   url: https://upload.wikimedia.org/wikipedia/commons/a/a3/%D0%98%D0%B2%D0%B0%D0%BD_%D0%9A._%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_-_%D0%9D%D0%B0_%D0%B4%D0%BE%D1%80%D0%BE%D0%B3%D0%B0%D1%85%2C_%D0%92%D0%B5%D1%87%D0%B5%D1%80_%281867%29.jpg
   size: 3678209
   tones: [amber, sea, dusk]
@@ -52,6 +57,7 @@
   name: Cloud Study, Early Morning, Looking East from Hampstead
   artist: John Constable
   date: "1821"
+  added: "2026-07-12"
   url: https://upload.wikimedia.org/wikipedia/commons/a/af/John_Constable_-_Cloud_Study%2C_Early_Morning%2C_Looking_East_from_Hampstead_-_Google_Art_Project.jpg
   tones: [sky, pale, air]
   source: Wikimedia Commons
@@ -60,6 +66,7 @@
   name: Study of Clouds over the Roman Campagna
   artist: Pierre-Henri de Valenciennes
   date: "1782"
+  added: "2026-07-12"
   url: https://upload.wikimedia.org/wikipedia/commons/7/72/Study_of_Clouds_over_the_Roman_Campagna_A12506.jpg
   tones: [cloud, warm, open]
   source: Wikimedia Commons
@@ -68,6 +75,7 @@
   name: Morning Mood (Island View)
   artist: Hjalmar Munsterhjelm
   date: "1885"
+  added: "2026-07-13"
   url: https://upload.wikimedia.org/wikipedia/commons/1/1b/Hjalmar_Munsterhjelm_-_Morning_Mood_%28Island_View%29_-_A_II_845_-_Finnish_National_Gallery.jpg
   size: 1228149
   tones: [cool, water, quiet]
@@ -77,6 +85,7 @@
   name: View of Roskilde Fjord near Frederikssund
   artist: Vilhelm Kyhn
   date: "1849"
+  added: "2026-07-13"
   url: https://upload.wikimedia.org/wikipedia/commons/d/dc/Vilhelm_Kyhn%2C_Roskilde_Fjord_n%C3%A6r_Frederikssund%2C_1849%2C_KMS7103%2C_Statens_Museum_for_Kunst.jpg
   tones: [nordic, soft, green]
   source: Wikimedia Commons
@@ -85,6 +94,7 @@
   name: Zealand Landscape. Open Country in North Zealand
   artist: Johan Thomas Lundbye
   date: "1842"
+  added: "2026-07-14"
   url: https://upload.wikimedia.org/wikipedia/commons/6/65/Johan_Thomas_Lundbye_-_Zealand_Landscape._Open_Country_in_North_Zealand_-_Google_Art_Project.jpg
   tones: [field, sky, calm]
   source: Wikimedia Commons
@@ -93,6 +103,7 @@
   name: Landscape in Summer
   artist: Joakim Skovgaard
   date: "1877"
+  added: "2026-07-15"
   url: https://upload.wikimedia.org/wikipedia/commons/a/a7/Joakim_Skovgaard%2C_Sommerlandskab%2C_1877%2C_KMS3138%2C_Statens_Museum_for_Kunst.jpg
   tones: [summer, path, green]
   source: Wikimedia Commons
@@ -101,6 +112,7 @@
   name: The Dogana and Santa Maria della Salute, Venice
   artist: Joseph Mallord William Turner
   date: "1843"
+  added: "2026-07-16"
   url: https://upload.wikimedia.org/wikipedia/commons/5/50/The_Dogana_and_Santa_Maria_della_Salute%2C_Venice_E10742.jpg
   tones: [gold, water, glow]
   source: Wikimedia Commons
@@ -109,6 +121,7 @@
   name: River Landscape with a Church in the Distance
   artist: Salomon van Ruysdael
   date: "1647"
+  added: "2026-07-16"
   url: https://upload.wikimedia.org/wikipedia/commons/a/ac/Salomon_van_Ruysdael_-_River_Landscape_with_a_Church_in_the_Distance_-_Google_Art_Project.jpg
   tones: [river, dutch, soft]
   source: Wikimedia Commons
@@ -117,6 +130,7 @@
   name: Dutch Landscape with a View of Haarlem
   artist: Andreas Schelfhout
   date: "1844"
+  added: "2026-07-17"
   url: https://upload.wikimedia.org/wikipedia/commons/9/94/Andreas_Schelfhout_-_Rivierenlandschap_bij_Haarlem_met_windmolen_en_de_ru%C3%AFne_van_Brederode.jpg
   size: 3145728
   tones: [dutch, mill, grey]
@@ -126,6 +140,7 @@
   name: A Danish Coast, Summer
   artist: P. C. Skovgaard
   date: "1850"
+  added: "2026-07-18"
   url: https://upload.wikimedia.org/wikipedia/commons/c/c9/P._C._Skovgaard_-_A_Danish_coast%2C_summer_%281850%29.jpg
   tones: [coast, summer, bright]
   source: Wikimedia Commons
@@ -134,6 +149,7 @@
   name: Calm Sea
   artist: Gustave Courbet
   date: "1866"
+  added: "2026-07-19"
   url: https://upload.wikimedia.org/wikipedia/commons/c/c8/Gustave_Courbet%2C_Calm_Sea%2C_1866%2C_NGA_66408.jpg
   tones: [sea, grey, still]
   source: Wikimedia Commons
@@ -142,6 +158,7 @@
   name: The Cliffs of the Island of Møn
   artist: Louis Gurlitt
   date: "1842"
+  added: "2026-07-20"
   url: https://upload.wikimedia.org/wikipedia/commons/b/bc/Louis_Gurlitt%2C_M%C3%B8ns_Klint%2C_1842%2C_KMS525%2C_Statens_Museum_for_Kunst.jpg
   tones: [chalk, blue, cliff]
   source: Wikimedia Commons
@@ -150,6 +167,7 @@
   name: Landscape with a River and Angler
   artist: Alexei Savrasov
   date: "1859"
+  added: "2026-07-21"
   url: https://upload.wikimedia.org/wikipedia/commons/3/33/%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9_%D0%9A._%D0%A1%D0%B0%D0%B2%D1%80%D0%B0%D1%81%D0%BE%D0%B2_-_%D0%9F%D0%B5%D0%B9%D0%B7%D0%B0%D0%B6_%D1%81_%D1%80%D0%B5%D0%BA%D0%BE%D0%B9_%D0%B8_%D1%80%D1%8B%D0%B1%D0%B0%D0%BA%D0%BE%D0%BC_%281859%29.jpg
   size: 7010299
   tones: [sky, river, summer]

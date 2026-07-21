@@ -9,6 +9,7 @@ export type WallpaperCard = {
   name: string;
   artist: string;
   date: string;
+  added: string;
   tones: string[];
   source: string;
   size: string | null;
@@ -23,6 +24,7 @@ export function toCard(w: Wallpaper): WallpaperCard {
     name: w.name,
     artist: w.artist,
     date: w.date,
+    added: w.added,
     tones: w.tones,
     source: w.source,
     size: w.size != null ? fmtSize(w.size) : null,
@@ -73,7 +75,7 @@ export function searchWallpapers(opts: {
     if (artist && !w.artist.toLowerCase().includes(artist)) return false;
     if (tone && !w.tones.some((t) => t.toLowerCase() === tone)) return false;
     if (!q) return true;
-    const hay = [w.id, w.name, w.artist, w.date, w.source, ...w.tones]
+    const hay = [w.id, w.name, w.artist, w.date, w.added, w.source, ...w.tones]
       .join(" ")
       .toLowerCase();
     return hay.includes(q);
@@ -81,7 +83,7 @@ export function searchWallpapers(opts: {
 
   const sorted = [...filtered].sort(
     (a, b) =>
-      b.date.localeCompare(a.date) || a.artist.localeCompare(b.artist),
+      b.added.localeCompare(a.added) || a.artist.localeCompare(b.artist),
   );
 
   return {

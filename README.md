@@ -86,6 +86,7 @@ Add or change entries in [`data/wallpapers.yaml`](data/wallpapers.yaml):
   name: Painting Title
   artist: Artist Name
   date: "1877"          # artwork date when known
+  added: "2026-07-21"   # date added to the catalog (YYYY-MM-DD)
   url: https://upload.wikimedia.org/...
   size: 1234567         # bytes (optional)
   tones: [green, gold]

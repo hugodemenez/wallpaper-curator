@@ -172,3 +172,13 @@
   size: 7010299
   tones: [sky, river, summer]
   source: Wikimedia Commons
+
+- id: holmberg-landscape-kuru-morning-light
+  name: Landscape from Kuru in Morning Light
+  artist: Werner Holmberg
+  date: "1858"
+  added: "2026-07-22"
+  url: https://upload.wikimedia.org/wikipedia/commons/e/e4/Werner_Holmberg_-_Landscape_from_Kuru_in_Morning_Light_-_A_I_93_-_Finnish_National_Gallery.jpg
+  size: 970088
+  tones: [sky, lake, luminous]
+  source: Finnish National Gallery

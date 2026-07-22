@@ -1,3 +1,5 @@
+@import "@silk-hq/components/unlayered-styles.css";
+
 :root {
   /* Stone + walnut — light (OKLCH, better-colors) */
   --bg: oklch(0.88 0.018 90);

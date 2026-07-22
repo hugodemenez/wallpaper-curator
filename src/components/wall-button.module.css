@@ -25,38 +25,16 @@
   border: none;
 }
 
-.tip {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
+.tipRoot {
+  padding: 0 20px 18px;
   display: grid;
-  place-items: end center;
-  padding: 16px;
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  justify-items: stretch;
 }
 
-.tipBackdrop {
-  position: absolute;
-  inset: 0;
-  border: none;
-  background: oklch(0.15 0.02 55 / 0.45);
-  min-height: unset;
-  min-width: unset;
-  padding: 0;
-  cursor: pointer;
-}
-
-.tipCard {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 420px);
-  padding: 22px 20px 18px;
-  background: var(--surface);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-top: 6px solid var(--wood);
-  box-shadow: 0 -12px 40px oklch(0 0 0 / 0.18);
-  animation: tipIn 280ms var(--ease-out) both;
+.tipHandle {
+  justify-self: center;
+  margin-top: 10px;
+  margin-bottom: 8px;
 }
 
 .tipTitle {
@@ -66,6 +44,7 @@
   font-weight: 500;
   letter-spacing: -0.02em;
   text-wrap: balance;
+  color: var(--fg);
 }
 
 .tipPreview {
@@ -118,7 +97,7 @@
   line-height: 1.4;
 }
 
-html[data-theme="dark"] .tipError {
+:global(html[data-theme="dark"]) .tipError {
   color: oklch(0.78 0.1 25);
 }
 
@@ -150,21 +129,4 @@ html[data-theme="dark"] .tipError {
 .tipClose:active,
 .tipSecondary:active {
   transform: scale(0.96);
-}
-
-@keyframes tipIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tipCard {
-    animation: none;
-  }
 }

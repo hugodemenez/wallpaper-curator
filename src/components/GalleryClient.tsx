@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
+import { VisuallyHidden } from "@silk-hq/components";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ViewerStage } from "@/components/ViewerStage";
 import { WallButton } from "@/components/WallButton";
+import { PageFromBottom } from "@/components/silk";
 import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
@@ -70,17 +72,21 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
     return sorted;
   }, [wallpapers, query, sort]);
 
-  const openViewer = useCallback((id: string) => {
-    const i = filtered.findIndex((w) => w.id === id);
-    if (i >= 0) setViewerIndex(i);
-  }, [filtered]);
+  const openViewer = useCallback(
+    (id: string) => {
+      const i = filtered.findIndex((w) => w.id === id);
+      if (i >= 0) setViewerIndex(i);
+    },
+    [filtered],
+  );
 
   const closeViewer = useCallback(() => setViewerIndex(null), []);
 
+  const viewerOpen = viewerIndex != null;
+
   useEffect(() => {
-    if (viewerIndex == null) return;
+    if (!viewerOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeViewer();
       if (e.key === "ArrowLeft") {
         setViewerIndex((i) => (i == null ? i : Math.max(0, i - 1)));
       }
@@ -90,13 +96,9 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
         );
       }
     };
-    document.body.classList.add("viewer-open");
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.classList.remove("viewer-open");
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [viewerIndex, filtered.length, closeViewer]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewerOpen, filtered.length]);
 
   const viewing = viewerIndex != null ? filtered[viewerIndex] : null;
 
@@ -173,134 +175,165 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
       </div>
 
       <main id="main" aria-labelledby="gallery-count">
-      {filtered.length === 0 ? (
-        <div className={styles.empty} role="status">
-          No wallpapers match your search.
-        </div>
-      ) : (
-        <div
-          className={styles.grid}
-          style={{ ["--cols" as string]: String(cols) }}
-        >
-          {filtered.map((w) => (
-            <article
-              key={w.id}
-              className={styles.card}
-              onClick={() => openViewer(w.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  openViewer(w.id);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Open ${w.artist} — ${w.name}`}
-            >
-              <div className={styles.thumb}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={thumbUrl(
-                    w.url,
-                    cols <= 1 ? 960 : cols === 2 ? 500 : 330,
-                  )}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <div className={styles.meta}>
-                <div className={styles.name}>
-                  {w.artist} — {w.name}
-                </div>
-                <div className={styles.size}>
-                  Artwork {w.date} · Added {w.added}
-                </div>
-                <div className={styles.size}>
-                  {fmtSize(w.size)} · {w.tones.join(", ")}
-                </div>
-                <div className={styles.actions}>
-                  <WallButton
-                    imageUrl={w.url}
-                    title={`${w.artist} — ${w.name}`}
-                    onClickCapture={(e) => e.stopPropagation()}
+        {filtered.length === 0 ? (
+          <div className={styles.empty} role="status">
+            No wallpapers match your search.
+          </div>
+        ) : (
+          <div
+            className={styles.grid}
+            style={{ ["--cols" as string]: String(cols) }}
+          >
+            {filtered.map((w) => (
+              <article
+                key={w.id}
+                className={styles.card}
+                onClick={() => openViewer(w.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openViewer(w.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Open ${w.artist} — ${w.name}`}
+              >
+                <div className={styles.thumb}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={thumbUrl(
+                      w.url,
+                      cols <= 1 ? 960 : cols === 2 ? 500 : 330,
+                    )}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
                   />
+                </div>
+                <div className={styles.meta}>
+                  <div className={styles.name}>
+                    {w.artist} — {w.name}
+                  </div>
+                  <div className={styles.size}>
+                    Artwork {w.date} · Added {w.added}
+                  </div>
+                  <div className={styles.size}>
+                    {fmtSize(w.size)} · {w.tones.join(", ")}
+                  </div>
+                  <div className={styles.actions}>
+                    <WallButton
+                      imageUrl={w.url}
+                      title={`${w.artist} — ${w.name}`}
+                      onClickCapture={(e) => e.stopPropagation()}
+                    />
+                    <a
+                      href={w.url}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Download ${w.name}`}
+                    >
+                      dl
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <PageFromBottom.Root
+        presented={viewerOpen}
+        onPresentedChange={(open) => {
+          if (!open) closeViewer();
+        }}
+      >
+        <PageFromBottom.Portal>
+          <PageFromBottom.View>
+            <PageFromBottom.Backdrop />
+            <PageFromBottom.Content>
+              <div className={styles.bar}>
+                <PageFromBottom.Title className={styles.title} asChild>
+                  <span id="viewer-title">
+                    {viewing
+                      ? `${viewing.artist} — ${viewing.name}`
+                      : "Wallpaper"}
+                  </span>
+                </PageFromBottom.Title>
+                <span className={`${styles.count} dim`}>
+                  {viewerIndex != null
+                    ? `${viewerIndex + 1} / ${filtered.length}`
+                    : ""}
+                </span>
+                {viewing && (
+                  <WallButton
+                    imageUrl={viewing.url}
+                    title={`${viewing.artist} — ${viewing.name}`}
+                  />
+                )}
+                {viewing && (
                   <a
-                    href={w.url}
+                    href={viewing.url}
                     download
                     target="_blank"
                     rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Download ${w.name}`}
+                    aria-label="Download original"
                   >
                     dl
                   </a>
-                </div>
+                )}
+                <PageFromBottom.Trigger action="dismiss" asChild>
+                  <button type="button" aria-label="Close viewer">
+                    close
+                  </button>
+                </PageFromBottom.Trigger>
+                <VisuallyHidden.Root>
+                  <PageFromBottom.Description>
+                    Swipe down to close. Use arrow keys or buttons to browse.
+                  </PageFromBottom.Description>
+                </VisuallyHidden.Root>
               </div>
-            </article>
-          ))}
-        </div>
-      )}
-      </main>
 
-      {viewing && viewerIndex != null && (
-        <div
-          className={styles.viewer}
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${viewing.artist} — ${viewing.name}`}
-        >
-          <div className={styles.bar}>
-            <span className={styles.title} id="viewer-title">
-              {viewing.artist} — {viewing.name}
-            </span>
-            <span className={`${styles.count} dim`}>
-              {viewerIndex + 1} / {filtered.length}
-            </span>
-            <WallButton
-              imageUrl={viewing.url}
-              title={`${viewing.artist} — ${viewing.name}`}
-            />
-            <a
-              href={viewing.url}
-              download
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Download original"
-            >
-              dl
-            </a>
-            <button type="button" onClick={closeViewer} aria-label="Close viewer">
-              close
-            </button>
-          </div>
-          <ViewerStage
-            src={thumbUrl(viewing.url, 1920)}
-            alt={`${viewing.artist} — ${viewing.name}`}
-            canPrev={viewerIndex > 0}
-            canNext={viewerIndex < filtered.length - 1}
-            onPrev={() => setViewerIndex(viewerIndex - 1)}
-            onNext={() => setViewerIndex(viewerIndex + 1)}
-            onClose={closeViewer}
-          />
-          <div className={styles.film} role="list" aria-label="Wallpaper filmstrip">
-            {filtered.map((w, i) => (
-              <button
-                key={w.id}
-                type="button"
-                role="listitem"
-                className={i === viewerIndex ? styles.filmActive : undefined}
-                aria-label={`${w.artist} — ${w.name}`}
-                aria-current={i === viewerIndex ? "true" : undefined}
-                onClick={() => setViewerIndex(i)}
+              {viewing && viewerIndex != null ? (
+                <ViewerStage
+                  src={thumbUrl(viewing.url, 1920)}
+                  alt={`${viewing.artist} — ${viewing.name}`}
+                  canPrev={viewerIndex > 0}
+                  canNext={viewerIndex < filtered.length - 1}
+                  onPrev={() => setViewerIndex(viewerIndex - 1)}
+                  onNext={() => setViewerIndex(viewerIndex + 1)}
+                />
+              ) : (
+                <div className={styles.stage} />
+              )}
+
+              <div
+                className={styles.film}
+                role="list"
+                aria-label="Wallpaper filmstrip"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={thumbUrl(w.url, 120)} alt="" />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+                {filtered.map((w, i) => (
+                  <button
+                    key={w.id}
+                    type="button"
+                    role="listitem"
+                    className={i === viewerIndex ? styles.filmActive : undefined}
+                    aria-label={`${w.artist} — ${w.name}`}
+                    aria-current={i === viewerIndex ? "true" : undefined}
+                    onClick={() => setViewerIndex(i)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={thumbUrl(w.url, 120)} alt="" />
+                  </button>
+                ))}
+              </div>
+            </PageFromBottom.Content>
+          </PageFromBottom.View>
+        </PageFromBottom.Portal>
+      </PageFromBottom.Root>
     </div>
   );
 }

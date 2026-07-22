@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CopyToast } from "@/components/CopyToast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SITE_URL } from "@/lib/site";
 import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
@@ -25,7 +26,8 @@ type Props = {
 export function LandingHero({ hero, previews }: Props) {
   const [shown, setShown] = useState(false);
   const [imageIn, setImageIn] = useState(false);
-  const [copied, setCopied] = useState<"url" | "snippet" | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastNonce, setToastNonce] = useState(0);
 
   useEffect(() => {
     const reduce =
@@ -49,10 +51,12 @@ export function LandingHero({ hero, previews }: Props) {
   async function copy(kind: "url" | "snippet", value: string) {
     try {
       await navigator.clipboard.writeText(value);
-      setCopied(kind);
-      window.setTimeout(() => setCopied(null), 1600);
+      setToastMessage(
+        kind === "url" ? "MCP endpoint copied" : "Cursor MCP snippet copied",
+      );
+      setToastNonce((n) => n + 1);
     } catch {
-      setCopied(null);
+      setToastMessage(null);
     }
   }
 
@@ -188,7 +192,7 @@ export function LandingHero({ hero, previews }: Props) {
                 className={styles.mcpCopy}
                 onClick={() => copy("url", MCP_URL)}
               >
-                {copied === "url" ? "Copied" : "Copy"}
+                Copy
               </button>
             </div>
           </div>
@@ -217,12 +221,14 @@ export function LandingHero({ hero, previews }: Props) {
                 className={styles.mcpCopy}
                 onClick={() => copy("snippet", CURSOR_SNIPPET)}
               >
-                {copied === "snippet" ? "Copied" : "Copy"}
+                Copy
               </button>
             </div>
           </div>
         </section>
       </main>
+
+      <CopyToast message={toastMessage} nonce={toastNonce} />
     </div>
   );
 }

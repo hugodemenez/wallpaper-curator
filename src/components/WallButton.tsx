@@ -9,6 +9,7 @@ import {
 } from "@/lib/ios-wallpaper";
 import { canUseRaycastWallpaper } from "@/lib/platform";
 import { thumbUrl } from "@/lib/wallpapers";
+import { DetachedSheet } from "@/components/silk";
 import styles from "./wall-button.module.css";
 
 type Props = {
@@ -108,11 +109,6 @@ export function WallButton({
     window.location.href = "photos-redirect://";
   }
 
-  function closeSheet() {
-    setSheetOpen(false);
-    setError(null);
-  }
-
   if (mode === "raycast") {
     return (
       <a
@@ -127,7 +123,13 @@ export function WallButton({
   }
 
   return (
-    <>
+    <DetachedSheet.Root
+      presented={sheetOpen}
+      onPresentedChange={(open) => {
+        setSheetOpen(open);
+        if (!open) setError(null);
+      }}
+    >
       <button
         type="button"
         className={`${styles.wallBtn} ${className ?? ""}`}
@@ -139,82 +141,75 @@ export function WallButton({
         {busy ? "…" : "wall"}
       </button>
 
-      {sheetOpen && (
-        <div
-          className={styles.tip}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="wall-tip-title"
-        >
-          <div className={styles.tipCard}>
-            <h2 id="wall-tip-title" className={styles.tipTitle}>
-              Set as wallpaper
-            </h2>
+      <DetachedSheet.Portal>
+        <DetachedSheet.View>
+          <DetachedSheet.Backdrop />
+          <DetachedSheet.Content>
+            <div className={styles.tipRoot}>
+              <DetachedSheet.Handle className={styles.tipHandle} />
+              <DetachedSheet.Title className={styles.tipTitle}>
+                Set as wallpaper
+              </DetachedSheet.Title>
 
-            {previewUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={styles.tipPreview}
-                src={previewUrl}
-                alt={title}
-              />
-            )}
+              {previewUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={styles.tipPreview}
+                  src={previewUrl}
+                  alt={title}
+                />
+              )}
 
-            <ol className={styles.tipSteps}>
-              <li>
-                Tap <strong>Save to Photos</strong> below (Safari shows{" "}
-                <strong>Save Image</strong>).
-              </li>
-              <li>
-                Open <strong>Photos</strong> and select the painting.
-              </li>
-              <li>
-                Tap <strong>Share</strong> → <strong>Use as Wallpaper</strong>.
-              </li>
-              <li>Choose Lock Screen, Home Screen, or both.</li>
-            </ol>
+              <DetachedSheet.Description asChild>
+                <ol className={styles.tipSteps}>
+                  <li>
+                    Tap <strong>Save to Photos</strong> below (Safari shows{" "}
+                    <strong>Save Image</strong>).
+                  </li>
+                  <li>
+                    Open <strong>Photos</strong> and select the painting.
+                  </li>
+                  <li>
+                    Tap <strong>Share</strong> → <strong>Use as Wallpaper</strong>.
+                  </li>
+                  <li>Choose Lock Screen, Home Screen, or both.</li>
+                </ol>
+              </DetachedSheet.Description>
 
-            {!shareReady && (
-              <p className={styles.tipLead}>
-                Or long-press the image → Share → Save Image.
-              </p>
-            )}
+              {!shareReady && (
+                <p className={styles.tipLead}>
+                  Or long-press the image → Share → Save Image.
+                </p>
+              )}
 
-            {error && <p className={styles.tipError}>{error}</p>}
+              {error && <p className={styles.tipError}>{error}</p>}
 
-            <div className={styles.tipActions}>
-              <button
-                type="button"
-                className={styles.tipClose}
-                onClick={shareNow}
-                disabled={busy || !shareFile}
-              >
-                {busy ? "…" : "Save to Photos"}
-              </button>
-              <button
-                type="button"
-                className={styles.tipSecondary}
-                onClick={openPhotos}
-              >
-                Open Photos
-              </button>
-              <button
-                type="button"
-                className={styles.tipSecondary}
-                onClick={closeSheet}
-              >
-                Close
-              </button>
+              <div className={styles.tipActions}>
+                <button
+                  type="button"
+                  className={styles.tipClose}
+                  onClick={shareNow}
+                  disabled={busy || !shareFile}
+                >
+                  {busy ? "…" : "Save to Photos"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.tipSecondary}
+                  onClick={openPhotos}
+                >
+                  Open Photos
+                </button>
+                <DetachedSheet.Trigger action="dismiss" asChild>
+                  <button type="button" className={styles.tipSecondary}>
+                    Close
+                  </button>
+                </DetachedSheet.Trigger>
+              </div>
             </div>
-          </div>
-          <button
-            type="button"
-            className={styles.tipBackdrop}
-            aria-label="Dismiss"
-            onClick={closeSheet}
-          />
-        </div>
-      )}
-    </>
+          </DetachedSheet.Content>
+        </DetachedSheet.View>
+      </DetachedSheet.Portal>
+    </DetachedSheet.Root>
   );
 }

@@ -192,3 +192,13 @@
   size: 2244103
   tones: [sky, river, pearly]
   source: Wikimedia Commons
+
+- id: monet-argenteuil
+  name: Argenteuil
+  artist: Claude Monet
+  date: "c. 1872"
+  added: "2026-07-23"
+  url: https://upload.wikimedia.org/wikipedia/commons/7/73/Claude_Monet%2C_Argenteuil%2C_c._1872%2C_NGA_52186.jpg
+  size: 15321106
+  tones: [sky, river, bright]
+  source: Wikimedia Commons

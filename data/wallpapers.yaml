@@ -182,3 +182,13 @@
   size: 970088
   tones: [sky, lake, luminous]
   source: Finnish National Gallery
+
+- id: corot-rouen-panoramic-seine
+  name: Rouen, a Panoramic View with the Seine in the Foreground
+  artist: Jean-Baptiste Camille Corot
+  date: "19th century (date unknown)"
+  added: "2026-07-23"
+  url: https://upload.wikimedia.org/wikipedia/commons/a/ab/Jean-Baptiste-Camille_Corot_-_Rouen%2C_une_vue_panoramique_de_la_Seine_au_premier_plan.jpg
+  size: 2244103
+  tones: [sky, river, pearly]
+  source: Wikimedia Commons

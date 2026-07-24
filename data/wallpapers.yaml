@@ -202,3 +202,13 @@
   size: 15321106
   tones: [sky, river, bright]
   source: Wikimedia Commons
+
+- id: weissenbruch-beach-scene
+  name: Beach scene
+  artist: Jan Hendrik Weissenbruch
+  date: "1887"
+  added: "2026-07-24"
+  url: https://upload.wikimedia.org/wikipedia/commons/e/e2/Jan_Hendrik_Weissenbruch_-_Beach_scene_-_Google_Art_Project.jpg
+  size: 7058900
+  tones: [sky, beach, luminous, blue]
+  source: Wikimedia Commons

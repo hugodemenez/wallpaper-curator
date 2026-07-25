@@ -212,3 +212,13 @@
   size: 7058900
   tones: [sky, beach, luminous, blue]
   source: Wikimedia Commons
+
+- id: bocion-pres-evian-lake-geneva
+  name: Près d'Evian au lac de Genève
+  artist: François Bocion
+  date: "1883"
+  added: "2026-07-25"
+  url: https://upload.wikimedia.org/wikipedia/commons/0/0d/Pr%C3%A8s_d%27Evian_au_lac_de_Gen%C3%A8ve_5941.jpg
+  size: 5720135
+  tones: [sky, lake, sails, luminous]
+  source: Wikimedia Commons

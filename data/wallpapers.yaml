@@ -222,3 +222,13 @@
   size: 5720135
   tones: [sky, lake, sails, luminous]
   source: Wikimedia Commons
+
+- id: bonington-salt-marshes-near-trouville
+  name: The Salt Marshes near Trouville
+  artist: Richard Parkes Bonington
+  date: "1826"
+  added: "2026-07-26"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/52/Richard_Parkes_Bonington_%28British_-_The_Salt_Marshes_near_Trouville_-_Google_Art_Project.jpg
+  size: 3709329
+  tones: [sky, marsh, pale, airy]
+  source: Wikimedia Commons

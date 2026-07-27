@@ -232,3 +232,13 @@
   size: 3709329
   tones: [sky, marsh, pale, airy]
   source: Wikimedia Commons
+
+- id: boudin-venice-santa-maria-della-salute
+  name: Venice, Santa Maria della Salute from San Giorgio
+  artist: Eugène Boudin
+  date: "1895"
+  added: "2026-07-27"
+  url: https://upload.wikimedia.org/wikipedia/commons/b/b1/Eug%C3%A8ne_Louis_Boudin_-_Venice%2C_Santa_Maria_della_Salute_from_San_Giorgio_-_Google_Art_Project.jpg
+  size: 7506538
+  tones: [sky, lagoon, luminous, blue]
+  source: Wikimedia Commons

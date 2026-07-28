@@ -242,3 +242,13 @@
   size: 7506538
   tones: [sky, lagoon, luminous, blue]
   source: Wikimedia Commons
+
+- id: richards-quiet-seascape
+  name: Quiet Seascape
+  artist: William Trost Richards
+  date: "1883"
+  added: "2026-07-28"
+  url: https://upload.wikimedia.org/wikipedia/commons/7/78/William_Trost_Richards_-_Quiet_Seascape_-_80.67_-_Minneapolis_Institute_of_Arts.jpg
+  size: 4231411
+  tones: [sky, sea, pearly, luminous]
+  source: Wikimedia Commons

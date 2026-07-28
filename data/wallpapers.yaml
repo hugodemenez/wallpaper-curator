@@ -252,3 +252,13 @@
   size: 4231411
   tones: [sky, sea, pearly, luminous]
   source: Wikimedia Commons
+
+- id: haseltine-lago-maggiore
+  name: Lago Maggiore
+  artist: William Stanley Haseltine
+  date: "c. 1867"
+  added: "2026-07-28"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/2f/William_Stanley_Haseltine_-_Lago_Maggiore_-_Google_Art_Project.jpg
+  size: 2039376
+  tones: [sky, lake, blue, luminous]
+  source: Wikimedia Commons

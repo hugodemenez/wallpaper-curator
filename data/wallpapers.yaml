@@ -262,3 +262,13 @@
   size: 2039376
   tones: [sky, lake, blue, luminous]
   source: Wikimedia Commons
+
+- id: chittussi-lake-in-ermenonville
+  name: Lake in Ermenonville
+  artist: Antonín Chittussi
+  date: "1882"
+  added: "2026-07-29"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/20/Anton%C3%ADn_Chittussi_-_Jezero_v_Ermenonville_%281882%29.jpg
+  size: 7704497
+  tones: [lake, sky, summer, luminous]
+  source: Wikimedia Commons

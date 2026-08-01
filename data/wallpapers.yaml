@@ -272,3 +272,13 @@
   size: 7704497
   tones: [lake, sky, summer, luminous]
   source: Wikimedia Commons
+
+- id: brett-caernarvon
+  name: Caernarvon
+  artist: John Brett
+  date: "1875"
+  added: "2026-08-01"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/57/John_Brett_-_Caernarvon_-_Google_Art_Project.jpg
+  size: 5800520
+  tones: [sky, water, mountains, luminous]
+  source: Wikimedia Commons

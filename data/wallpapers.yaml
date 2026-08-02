@@ -282,3 +282,13 @@
   size: 5800520
   tones: [sky, water, mountains, luminous]
   source: Wikimedia Commons
+
+- id: kensett-beach-at-beverly
+  name: Beach at Beverly
+  artist: John Frederick Kensett
+  date: "c. 1869/1872"
+  added: "2026-08-02"
+  url: https://api.nga.gov/iiif/e36f10fe-8366-4753-a447-a9467fb4de32/full/full/0/default.jpg?attachment_filename=beach_at_beverly_1978.6.5.jpg
+  size: 2535617
+  tones: [sky, sea, pearly, summer]
+  source: National Gallery of Art

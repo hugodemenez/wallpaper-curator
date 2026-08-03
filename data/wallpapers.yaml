@@ -292,3 +292,13 @@
   size: 2535617
   tones: [sky, sea, pearly, summer]
   source: National Gallery of Art
+
+- id: danielson-gambogi-at-lake-massaciuccoli
+  name: At Lake Massaciuccoli
+  artist: Elin Danielson-Gambogi
+  date: "1899"
+  added: "2026-08-03"
+  url: https://upload.wikimedia.org/wikipedia/commons/4/4e/Elin_Danielson-Gambogi_-_Massaciuccolin_j%C3%A4rvell%C3%A4_-_A_I_705_-_Finnish_National_Gallery.jpg
+  size: 577532
+  tones: [lake, mountains, pearly, blue]
+  source: Wikimedia Commons

@@ -312,3 +312,13 @@
   size: 13414768
   tones: [sky, sea, cliffs, luminous]
   source: Wikimedia Commons
+
+- id: sisley-the-terrace-at-saint-germain-spring
+  name: The Terrace at Saint-Germain, Spring
+  artist: Alfred Sisley
+  date: "1875"
+  added: "2026-08-06"
+  url: https://upload.wikimedia.org/wikipedia/commons/a/a2/Alfred_Sisley_-_The_Terrace_at_Saint-Germain%2C_Spring_-_Google_Art_Project.jpg
+  size: 16309857
+  tones: [sky, river, blossom, luminous]
+  source: Wikimedia Commons

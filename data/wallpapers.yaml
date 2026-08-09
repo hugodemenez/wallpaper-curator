@@ -342,3 +342,13 @@
   size: 75008453
   tones: [sky, sea, surf, summer]
   source: Wikimedia Commons
+
+- id: christensen-summer-landscape-with-views-of-fields-and-a-fjord
+  name: Summer Landscape with Views of Fields and a Fjord
+  artist: Godfred Christensen
+  date: "1871"
+  added: "2026-08-09"
+  url: https://upload.wikimedia.org/wikipedia/commons/4/4f/Godfred_Christensen_-_Sommerlandskab_med_udsigt_over_marker_og_en_fjord_-_1871.png
+  size: 16445127
+  tones: [sky, fields, fjord, summer]
+  source: Wikimedia Commons

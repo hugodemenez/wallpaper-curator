@@ -352,3 +352,13 @@
   size: 16445127
   tones: [sky, fields, fjord, summer]
   source: Wikimedia Commons
+
+- id: petersen-a-boat-harbour-humlebaek
+  name: A Boat Harbour. Humlebæk
+  artist: Vilhelm Petersen
+  date: "1854"
+  added: "2026-08-10"
+  url: https://iip.smk.dk/iiif/jp2/0c483n605_kms3620.tif.reconstructed.tif.jp2/full/full/0/native.jpg
+  size: 6059832
+  tones: [sky, harbor, silvery, summer]
+  source: Statens Museum for Kunst

@@ -362,3 +362,13 @@
   size: 6059832
   tones: [sky, harbor, silvery, summer]
   source: Statens Museum for Kunst
+
+- id: becker-view-from-meilahti
+  name: View from Meilahti
+  artist: Adolf von Becker
+  date: "1860–1900"
+  added: "2026-08-11"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/2a/Adolf_von_Becker_-_View_from_Meilahti_-_A_III_2302_-_Finnish_National_Gallery.jpg
+  size: 1081155
+  tones: [sky, lake, pearly, summer]
+  source: Wikimedia Commons

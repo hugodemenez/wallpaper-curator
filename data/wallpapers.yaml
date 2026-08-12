@@ -372,3 +372,13 @@
   size: 1081155
   tones: [sky, lake, pearly, summer]
   source: Wikimedia Commons
+
+- id: jarnefelt-landscape
+  name: Landscape
+  artist: Eero Järnefelt
+  date: "1884"
+  added: "2026-08-12"
+  url: https://upload.wikimedia.org/wikipedia/commons/a/a1/Eero_J%C3%A4rnefelt_-_Landscape_%281884%29.jpg
+  size: 1509876
+  tones: [sky, lake, pastoral, summer]
+  source: Wikimedia Commons

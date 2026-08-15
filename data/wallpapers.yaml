@@ -402,3 +402,13 @@
   size: 3425965
   tones: [sky, lake, alpine, luminous]
   source: Wikimedia Commons
+
+- id: baagoe-fishing-village-near-humlebaek
+  name: Scenery from a fishing village near Humlebæk with a view to Egebæksvang
+  artist: Carl Baagøe
+  date: "1870"
+  added: "2026-08-15"
+  url: https://upload.wikimedia.org/wikipedia/commons/d/db/Carl_Baag%C3%B8e_-_Parti_fra_fiskerlejet_ved_Humleb%C3%A6k_med_udsigt_mod_Egeb%C3%A6ksvang_-_1870.png
+  size: 16570281
+  tones: [sky, coast, village, summer]
+  source: Wikimedia Commons

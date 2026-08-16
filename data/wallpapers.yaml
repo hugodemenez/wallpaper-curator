@@ -412,3 +412,13 @@
   size: 16570281
   tones: [sky, coast, village, summer]
   source: Wikimedia Commons
+
+- id: turner-approach-to-venice
+  name: Approach to Venice
+  artist: Joseph Mallord William Turner
+  date: "1844"
+  added: "2026-08-16"
+  url: https://upload.wikimedia.org/wikipedia/commons/c/c9/Joseph_Mallord_William_Turner%2C_Approach_to_Venice%2C_1844%2C_NGA_117.jpg
+  size: 10658433
+  tones: [sky, lagoon, luminous, venice]
+  source: Wikimedia Commons

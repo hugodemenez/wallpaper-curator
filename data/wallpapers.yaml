@@ -442,3 +442,13 @@
   size: 30338909
   tones: [sky, coast, daylight, summer]
   source: Wikimedia Commons
+
+- id: carl-frederik-aagaard-the-coast-at-saltholm
+  name: The Coast at Saltholm
+  artist: Carl Frederik Aagaard
+  date: "1890"
+  added: "2026-08-20"
+  url: https://upload.wikimedia.org/wikipedia/commons/8/8a/Carl_Frederik_Aagaard_-_Strandparti_fra_Saltholm_-_1890_-_NK_288.JPG
+  size: 23968335
+  tones: [sky, tidal, luminous, summer]
+  source: Wikimedia Commons

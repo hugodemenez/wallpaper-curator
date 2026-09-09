@@ -472,3 +472,13 @@
   size: 6333041
   tones: [pearly, river, luminous, summer]
   source: Wikimedia Commons
+
+- id: ivan-aivazovsky-calm-sea
+  name: Calm Sea
+  artist: Ivan Aivazovsky
+  date: "1887"
+  added: "2026-09-09"
+  url: https://upload.wikimedia.org/wikipedia/commons/b/b4/Ruhige_See_by_Iwan_Aiwasowski%2C_1887.jpg
+  size: 2699831
+  tones: [pearly, azure, seascape, luminous]
+  source: Wikimedia Commons

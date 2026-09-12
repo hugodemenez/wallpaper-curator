@@ -482,3 +482,13 @@
   size: 2699831
   tones: [pearly, azure, seascape, luminous]
   source: Wikimedia Commons
+
+- id: oscar-kleineh-sea-landscape
+  name: Sea landscape
+  artist: Oscar Kleineh
+  date: "1890–1919"
+  added: "2026-09-12"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/59/Kleineh%2C_Oscar_-_Sea_landscape_-_Google_Art_Project.jpg
+  size: 6627309
+  tones: [watercolor, turquoise, airy, sailing]
+  source: Wikimedia Commons

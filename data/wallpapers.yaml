@@ -492,3 +492,473 @@
   size: 6627309
   tones: [watercolor, turquoise, airy, sailing]
   source: Wikimedia Commons
+
+- id: john-sell-cotman-a-summer-day
+  name: A Summer Day
+  artist: John Sell Cotman
+  date: "1827–1837"
+  added: "2026-09-19"
+  url: https://upload.wikimedia.org/wikipedia/commons/c/cf/John_Sell_Cotman_-_A_Summer_Day_-_Google_Art_Project.jpg
+  size: 14608661
+  tones: [cream, sky, pastoral, open]
+  source: Wikimedia Commons
+
+- id: hjalmar-munsterhjelm-lakeside-landscape-from-tavastia
+  name: Lakeside Landscape from Tavastia
+  artist: Hjalmar Munsterhjelm
+  date: "undated"
+  added: "2026-09-25"
+  url: https://upload.wikimedia.org/wikipedia/commons/1/1c/Hjalmar_Munsterhjelm_-_Lakeside_Landscape_from_Tavastia_-_A_IV_3652_-_Finnish_National_Gallery.jpg
+  size: 793079
+  tones: [cool, water, quiet, nordic]
+  source: Wikimedia Commons
+
+- id: hubert-robert-an-extensive-landscape-near-paris
+  name: An Extensive Landscape Near Paris
+  artist: Hubert Robert
+  date: "1781"
+  added: "2026-09-26"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/5f/Hubert_Robert_-_An_extensive_landscape_near_Paris_-_Google_Art_Project.jpg
+  size: 4307016
+  tones: [sky, open, classical, green]
+  source: Wikimedia Commons
+
+- id: eiler-rasmussen-eilersen-a-forest-lake-on-a-summer-day
+  name: A Forest Lake on a Summer Day
+  artist: Eiler Rasmussen Eilersen
+  date: "1881"
+  added: "2026-09-26"
+  url: https://upload.wikimedia.org/wikipedia/commons/a/aa/Eiler_Rasmussen_Eilersen_-_Sommerdag_ved_en_skovs%C3%B8_-_1881.png
+  size: 22793616
+  tones: [green, water, luminous, summer]
+  source: Wikimedia Commons
+
+- id: giuseppe-bernardino-bison-a-bucolic-river-landscape
+  name: A Bucolic River Landscape
+  artist: Giuseppe Bernardino Bison
+  date: "before 1844"
+  added: "2026-09-28"
+  url: https://upload.wikimedia.org/wikipedia/commons/0/08/Giuseppe_Bernardino_Bison_-_A_bucolic_river_landscape.jpg
+  size: 4771146
+  tones: [green, river, pastoral, soft]
+  source: Wikimedia Commons
+
+- id: henri-joseph-harpignies-landscape-in-auvergne
+  name: Landscape in Auvergne
+  artist: Henri-Joseph Harpignies
+  date: "1870"
+  added: "2026-09-29"
+  url: https://api.nga.gov/iiif/0d2988a3-7fab-4123-a6b9-31aea299f4b4/full/full/0/default.jpg
+  size: 3125611
+  tones: [green, countryside, soft, daylight]
+  source: National Gallery of Art
+
+- id: theodore-robinson-the-valley-of-the-seine-from-the-hills-of-giverny
+  name: The Valley of the Seine, from the Hills of Giverny
+  artist: Theodore Robinson
+  date: "1892"
+  added: "2026-09-30"
+  url: https://upload.wikimedia.org/wikipedia/commons/e/ef/Theodore_Robinson%2C_The_Valley_of_the_Seine%2C_from_the_Hills_of_Giverny%2C_1892%2C_NGA_166468.jpg
+  size: 20041325
+  tones: [pearly, valley, luminous, summer]
+  source: Wikimedia Commons
+
+- id: john-constable-landscape
+  name: Landscape
+  artist: John Constable
+  date: "c. 1796–1837"
+  added: "2026-10-01"
+  url: https://openaccess-cdn.clevelandart.org/1940.551/1940.551_print.jpg
+  size: 1841770
+  tones: [green, field, soft, open]
+  source: Cleveland Museum of Art
+
+- id: thomas-ender-a-region-near-bovec
+  name: A region near Bovec
+  artist: Thomas Ender
+  date: "1850"
+  added: "2026-10-02"
+  url: https://upload.wikimedia.org/wikipedia/commons/c/cf/Thomas_Ender_-_A_region_near_Bovec.jpg
+  size: 3624185
+  tones: [alpine, green, mountain, air]
+  source: Wikimedia Commons
+
+- id: willem-roelofs-the-gein-river-near-abcoude
+  name: The Gein River, near Abcoude
+  artist: Willem Roelofs
+  date: "1870–1897"
+  added: "2026-10-03"
+  url: https://iiif.micr.io/OoaQa/full/max/0/default.jpg
+  size: 1703477
+  tones: [river, cloud, green, calm]
+  source: Rijksmuseum
+
+- id: george-barret-river-landscape
+  name: River Landscape
+  artist: George Barret
+  date: "1773"
+  added: "2026-10-04"
+  url: https://upload.wikimedia.org/wikipedia/commons/0/04/George_Barret_-_River_Landscape_-_Google_Art_Project.jpg
+  size: 8120125
+  tones: [river, tree, golden, calm]
+  source: Wikimedia Commons
+
+- id: james-bulwer-river-scene-with-distant-castle
+  name: River Scene with Distant Castle
+  artist: James Bulwer
+  date: "19th century"
+  added: "2026-10-05"
+  url: https://api.nga.gov/iiif/d7e4dc62-dbe7-4640-85d2-fcdbec9c2470/full/full/0/default.jpg
+  size: 2298045
+  tones: [water, pale, castle, open]
+  source: National Gallery of Art
+
+- id: charles-francois-daubigny-sunset-on-the-river
+  name: Sunset on the River
+  artist: Charles-François Daubigny
+  date: "1874"
+  added: "2026-10-06"
+  url: https://api.nga.gov/iiif/6cee81b7-71a6-4cc4-9446-2ada168eebc2/full/full/0/default.jpg
+  size: 2705601
+  tones: [amber, river, dusk, calm]
+  source: National Gallery of Art
+
+- id: alexandre-calame-the-lake-of-thun
+  name: The Lake of Thun
+  artist: Alexandre Calame
+  date: "1854"
+  added: "2026-10-07"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/29/Alexandre_Calame_%281810-1864%29_-_The_Lake_of_Thun_-_NG1786_-_National_Gallery.jpg
+  size: 8322110
+  tones: [alpine, blue, water, vast]
+  source: Wikimedia Commons
+
+- id: josef-manes-the-elbe-river-landscape
+  name: The Elbe River Landscape
+  artist: Josef Mánes
+  date: "1863"
+  added: "2026-10-08"
+  url: https://upload.wikimedia.org/wikipedia/commons/7/73/Josef_M%C3%A1nes_-_The_Elbe_River_Landscape_-_O_2925_-_National_Gallery_Prague.jpg
+  size: 13800860
+  tones: [river, green, open, daylight]
+  source: Wikimedia Commons
+
+- id: fyodor-vasilyev-wet-meadow
+  name: Wet Meadow
+  artist: Fyodor Vasilyev
+  date: "1872"
+  added: "2026-10-09"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/2c/Fedor_Vasilyev_-_%D0%9C%D0%BE%D0%BA%D1%80%D1%8B%D0%B9_%D0%BB%D1%83%D0%B3_-_Google_Art_Project.jpg
+  size: 4602949
+  tones: [green, meadow, moist, sky]
+  source: Wikimedia Commons
+
+- id: william-turner-of-oxford-oxford-from-the-river-with-christ-church-in-the-foreground
+  name: Oxford from the River with Christ Church in the Foreground
+  artist: William Turner of Oxford
+  date: "c. 1820"
+  added: "2026-10-10"
+  url: https://upload.wikimedia.org/wikipedia/commons/7/72/William_Turner_of_Oxford_-_Oxford_from_the_River_with_Christ_Church_in_the_Foreground_-_Google_Art_Project.jpg
+  size: 5861609
+  tones: [river, cream, city, calm]
+  source: Wikimedia Commons
+
+- id: charles-towne-landscape-with-a-shepherd
+  name: Landscape with a Shepherd
+  artist: Charles Towne
+  date: "c. 1800"
+  added: "2026-10-11"
+  url: https://upload.wikimedia.org/wikipedia/commons/f/fc/Charles_Towne_-_Landscape_with_a_Shepherd_-_Google_Art_Project.jpg
+  size: 7239030
+  tones: [pastoral, gold, tree, soft]
+  source: Wikimedia Commons
+
+- id: william-fraser-garden-river-landscape-near-st-ives-huntingdonshire
+  name: River Landscape near St. Ives, Huntingdonshire
+  artist: William Fraser Garden
+  date: "1897"
+  added: "2026-10-13"
+  url: https://api.nga.gov/iiif/e775b78c-0073-484c-8836-9d22a696564d/full/full/0/default.jpg
+  size: 2632615
+  tones: [river, green, quiet, english]
+  source: National Gallery of Art
+
+- id: thomas-wright-landscape-with-a-lake-and-boats
+  name: Landscape with a Lake and Boats
+  artist: Thomas Wright
+  date: "1812"
+  added: "2026-10-13"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/2d/Thomas_Wright_-_Landscape_with_a_Lake_and_Boats_-_Google_Art_Project.jpg
+  size: 6666590
+  tones: [lake, boats, soft, daylight]
+  source: Wikimedia Commons
+
+- id: anonymous-artist-a-country-house-in-a-river-landscape-previously-identified-as-oatlands
+  name: A Country House in a River Landscape, Previously Identified as Oatlands
+  artist: Anonymous artist
+  date: "c. 1805"
+  added: "2026-10-14"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/57/A_Country_House_in_a_River_Landscape%2C_Previously_Identified_as_Oatlands_-_Google_Art_Project.jpg
+  size: 8005261
+  tones: [river, house, green, calm]
+  source: Wikimedia Commons
+
+- id: edouard-jean-marie-hostein-the-neuve-river-at-the-end-of-the-dardenne-valley
+  name: The Neuve River at the End of the Dardenne Valley
+  artist: Edouard Jean Marie Hostein
+  date: "1800s"
+  added: "2026-10-15"
+  url: https://openaccess-cdn.clevelandart.org/1978.129/1978.129_print.jpg
+  size: 1460612
+  tones: [river, valley, green, soft]
+  source: Cleveland Museum of Art
+
+- id: johannes-warnardus-bilders-landscape-with-trees
+  name: Landscape with Trees
+  artist: Johannes Warnardus Bilders
+  date: "undated, before 1880"
+  added: "2026-10-16"
+  url: https://upload.wikimedia.org/wikipedia/commons/3/31/Landscape_with_Trees%2C_watercolor-painting_on_paper.jpg
+  size: 3882165
+  tones: [tree, watercolor, green, air]
+  source: Wikimedia Commons
+
+- id: jean-baptiste-camille-corot-bridge-on-the-saone-river-at-macon
+  name: Bridge on the Saône River at Mâcon
+  artist: Jean-Baptiste-Camille Corot
+  date: "1834"
+  added: "2026-10-17"
+  url: https://api.nga.gov/iiif/173199d6-cab0-4c52-9d36-25da0c54f10e/full/full/0/default.jpg
+  size: 3509528
+  tones: [bridge, river, silvery, calm]
+  source: National Gallery of Art
+
+- id: george-inness-view-of-the-tiber-near-perugia
+  name: View of the Tiber near Perugia
+  artist: George Inness
+  date: "1872–1874"
+  added: "2026-10-18"
+  url: https://api.nga.gov/iiif/4e1c9d12-3f6c-4290-81d4-358b2c0682c7/full/full/0/default.jpg
+  size: 2444004
+  tones: [italianate, warm, open, soft]
+  source: National Gallery of Art
+
+- id: thomas-shotter-boys-a-river-and-cottage-with-white-paling
+  name: A River and Cottage with White Paling
+  artist: Thomas Shotter Boys
+  date: "1833"
+  added: "2026-10-19"
+  url: https://api.nga.gov/iiif/8e652a90-9d21-4c1d-bc19-f6684db0543f/full/full/0/default.jpg
+  size: 3660128
+  tones: [cottage, river, pale, quiet]
+  source: National Gallery of Art
+
+- id: adolf-dressler-landscape-of-the-oder-river
+  name: Landscape of the Oder River
+  artist: Adolf Dressler
+  date: "1874"
+  added: "2026-10-20"
+  url: https://upload.wikimedia.org/wikipedia/commons/0/0d/Adolf_Dressler_-_Landscape_of_the_Oder_River_-_186769_MNW_-_National_Museum_in_Warsaw.jpg
+  size: 1708587
+  tones: [river, green, open, daylight]
+  source: Wikimedia Commons
+
+- id: john-martin-view-on-the-river-wye-looking-towards-chepstow
+  name: View on the River Wye, Looking towards Chepstow
+  artist: John Martin
+  date: "1844"
+  added: "2026-10-21"
+  url: https://api.nga.gov/iiif/72590eff-4669-40c0-96f1-ec6e1fa6c38f/full/full/0/default.jpg
+  size: 2490267
+  tones: [river, valley, mist, open]
+  source: National Gallery of Art
+
+- id: robert-adam-river-landscape-with-a-castle
+  name: River Landscape with a Castle
+  artist: Robert Adam
+  date: "1780s"
+  added: "2026-10-22"
+  url: https://api.nga.gov/iiif/e5f7f7f6-095c-4e98-8d85-5433517e1dc2/full/full/0/default.jpg
+  size: 2590822
+  tones: [castle, river, classical, calm]
+  source: National Gallery of Art
+
+- id: emilio-sanchez-perrier-a-peaceful-river-landscape
+  name: A peaceful river landscape
+  artist: Emilio Sánchez Perrier
+  date: "19th century"
+  added: "2026-10-24"
+  url: https://upload.wikimedia.org/wikipedia/commons/3/32/Emilio_S%C3%A1nchez_Perrier_-_A_peaceful_river_landscape.jpg
+  size: 2751311
+  tones: [river, luminous, green, quiet]
+  source: Wikimedia Commons
+
+- id: eugene-boudin-the-bay-at-the-mouth-of-the-river-elorn-landerneau
+  name: The Bay at the Mouth of the River Elorn, Landerneau
+  artist: Eugène Boudin
+  date: "1871"
+  added: "2026-10-29"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/51/Eug%C3%A8ne%E2%80%93Louis_Boudin_-_The_Bay_at_the_Mouth_of_the_River_Elorn%2C_Landerneau_-_2019.67.2.McD_-_Dallas_Museum_of_Art.jpg
+  size: 10180138
+  tones: [bay, sky, pearly, coast]
+  source: Wikimedia Commons
+
+- id: charles-francois-daubigny-the-hillsides-of-mery-sur-oise-opposite-auvers
+  name: The Hillsides of Méry-sur-Oise, Opposite Auvers
+  artist: Charles-François Daubigny
+  date: "1873"
+  added: "2026-10-30"
+  url: https://openaccess-cdn.clevelandart.org/1916.1048/1916.1048_print.jpg
+  size: 1264570
+  tones: [hillside, river, soft, daylight]
+  source: Cleveland Museum of Art
+
+- id: john-robert-cozens-italian-landscape
+  name: Italian Landscape
+  artist: John Robert Cozens
+  date: "c. 1790–92"
+  added: "2026-10-31"
+  url: https://openaccess-cdn.clevelandart.org/1997.137/1997.137_print.jpg
+  size: 1774449
+  tones: [italianate, mist, pale, open]
+  source: Cleveland Museum of Art
+
+- id: pierre-auguste-renoir-pont-neuf-paris
+  name: Pont Neuf, Paris
+  artist: Pierre-Auguste Renoir
+  date: "1872"
+  added: "2026-10-31"
+  url: https://api.nga.gov/iiif/56303f18-6101-4d5d-9b03-20b58d657afa/full/full/0/default.jpg
+  size: 4522246
+  tones: [city, river, daylight, warm]
+  source: National Gallery of Art
+
+- id: alfred-sisley-the-bridge-at-villeneuve-la-garenne
+  name: The Bridge at Villeneuve-la-Garenne
+  artist: Alfred Sisley
+  date: "1872"
+  added: "2026-10-31"
+  url: https://images.metmuseum.org/CRDImages/ep/original/DP-14936-041.jpg
+  size: 6012677
+  tones: [bridge, river, luminous, spring]
+  source: The Metropolitan Museum of Art
+
+- id: jacob-philipp-hackert-riverside-landscape
+  name: Riverside Landscape
+  artist: Jacob Philipp Hackert
+  date: "1778"
+  added: "2026-11-01"
+  url: https://upload.wikimedia.org/wikipedia/commons/1/1c/Jacob_Philipp_Hackert_-_Landscape_with_River_-_WGA11024.jpg
+  size: 4079146
+  tones: [river, classical, green, open]
+  source: Wikimedia Commons
+
+- id: camille-pissarro-l-avenue-de-l-opera
+  name: L'Avenue de l'Opéra
+  artist: Camille Pissarro
+  date: "1898"
+  added: "2026-11-01"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/59/PISSARRO_Camille_L%27Avenue_de_l%27Op%C3%A9ra_Huile_sur_toile.jpg
+  size: 3715210
+  tones: [city, paris, daylight, pale]
+  source: Wikimedia Commons
+
+- id: albert-lebourg-le-pont-neuf-et-la-seine
+  name: Le Pont Neuf et la Seine
+  artist: Albert Lebourg
+  date: "1905"
+  added: "2026-11-03"
+  url: https://upload.wikimedia.org/wikipedia/commons/d/d7/Bemberg_Fondation_Toulouse_-_Le_Pont_Neuf_et_la_Seine_-_Albert_Lebourg_1905_Inv.2063.jpg
+  size: 31173489
+  tones: [river, city, pearly, impressionist]
+  source: Wikimedia Commons
+
+- id: jules-dupre-marshland
+  name: Marshland
+  artist: Jules Dupré
+  date: "1860s–1870s"
+  added: "2026-11-04"
+  url: https://openaccess-cdn.clevelandart.org/1964.291/1964.291_print.jpg
+  size: 1637345
+  tones: [marsh, sky, green, open]
+  source: Cleveland Museum of Art
+
+- id: gustave-loiseau-le-chemin-au-bord-de-la-riviere
+  name: Le chemin au bord de la rivière
+  artist: Gustave Loiseau
+  date: "c. 1900"
+  added: "2026-11-04"
+  url: https://upload.wikimedia.org/wikipedia/commons/9/9b/Gustave_loiseau_le_chemin_au_bord_de_la_riviere021953%29.jpg
+  size: 3366691
+  tones: [path, river, green, trellis]
+  source: Wikimedia Commons
+
+- id: paul-guigou-landscape-at-saint-andre-near-marseilles
+  name: Landscape at Saint-André, Near Marseilles
+  artist: Paul Guigou
+  date: "c. 1865"
+  added: "2026-11-05"
+  url: https://upload.wikimedia.org/wikipedia/commons/2/23/Landscape_at_Saint-Andr%C3%A9%2C_Near_Marseilles%2C_by_Paul_Guigou%2C_Cleveland_Museum_of_Art%2C_1980.265.jpg
+  size: 8809070
+  tones: [provence, dry, luminous, open]
+  source: Wikimedia Commons
+
+- id: leon-germain-pelouse-le-pont-de-guillon
+  name: Le Pont de Guillon
+  artist: Léon-Germain Pelouse
+  date: "before 1891"
+  added: "2026-11-07"
+  url: https://upload.wikimedia.org/wikipedia/commons/b/b0/L%C3%A9on_Germain_Pelouse--Le_Pont_de_Guillon_%28Doubs%29.jpg
+  size: 3286073
+  tones: [bridge, river, green, daylight]
+  source: Wikimedia Commons
+
+- id: leon-richet-groupe-d-arbres-au-bord-d-une-riviere
+  name: Groupe d'arbres au bord d'une rivière
+  artist: Léon Richet
+  date: "before 1907"
+  added: "2026-11-08"
+  url: https://upload.wikimedia.org/wikipedia/commons/9/90/L%C3%A9on_Richet_-_Groupe_d%27arbres_au_bord_d%27une_rivi%C3%A8re.jpg
+  size: 4249140
+  tones: [trees, river, green, barbizon]
+  source: Wikimedia Commons
+
+- id: marie-bracquemond-paysage-de-divonne
+  name: Paysage de Divonne
+  artist: Marie Bracquemond
+  date: "before 1916"
+  added: "2026-11-09"
+  url: https://upload.wikimedia.org/wikipedia/commons/d/db/Paysage_de_Divonne%2C_PPD1737.jpg
+  size: 4366151
+  tones: [meadow, luminous, impressionist, open]
+  source: Wikimedia Commons
+
+- id: felix-vallotton-plage-au-matin-houlgate
+  name: Plage au matin, Houlgate
+  artist: Félix Vallotton
+  date: "1913"
+  added: "2026-11-11"
+  url: https://upload.wikimedia.org/wikipedia/commons/5/5c/F%C3%A9lix_Vallotton_Plage_au_matin%2C_Houlgate_1913.jpg
+  size: 4164899
+  tones: [beach, sage, morning, coast]
+  source: Wikimedia Commons
+
+- id: marie-joseph-clavel-iwill-brumes-mauves
+  name: Brumes mauves
+  artist: Marie-Joseph Clavel (Iwill)
+  date: "1902"
+  added: "2026-11-12"
+  url: https://upload.wikimedia.org/wikipedia/commons/1/13/Iwill_-_Brumes_mauves_-_PPP140_-_Mus%C3%A9e_des_Beaux-Arts_de_la_ville_de_Paris.jpg
+  size: 1998307
+  tones: [lilac, mist, lagoon, mauve]
+  source: Wikimedia Commons
+
+- id: jean-victor-bertin-le-paysage-d-italie
+  name: Le Paysage d'Italie
+  artist: Jean-Victor Bertin
+  date: "1812"
+  added: "2026-11-15"
+  url: https://upload.wikimedia.org/wikipedia/commons/d/de/Jean-Victor_Bertin_-_Italian_Landscape_%28Le_Paysage_d%27Italie%29_-_Google_Art_Project.jpg
+  size: 1696978
+  tones: [italianate, classical, meadow, gold]
+  source: Wikimedia Commons

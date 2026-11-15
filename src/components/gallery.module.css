@@ -4,6 +4,20 @@
   background: var(--bg);
 }
 
+.shellWheel {
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shellWheel main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .chrome {
   position: sticky;
   top: 0;
@@ -315,6 +329,8 @@
   display: block;
 }
 
-:global(body.viewer-open) {
+:global(body.viewer-open),
+:global(body.gallery-wheel) {
   overflow: hidden;
+  overscroll-behavior: none;
 }

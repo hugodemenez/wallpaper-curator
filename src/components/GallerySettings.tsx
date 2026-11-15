@@ -8,12 +8,14 @@ import styles from "./gallery-settings.module.css";
 
 const COL_OPTIONS = [1, 2, 3, 4] as const;
 
+export type GalleryLayout = "wheel" | 1 | 2 | 3 | 4;
+
 export function GallerySettings({
-  cols,
-  onCols,
+  layout,
+  onLayout,
 }: {
-  cols: number;
-  onCols: (cols: number) => void;
+  layout: GalleryLayout;
+  onLayout: (layout: GalleryLayout) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -31,6 +33,7 @@ export function GallerySettings({
     <div
       className={popover.anchor}
       data-open={open ? "true" : "false"}
+      data-settings=""
       ref={rootRef}
     >
       <button
@@ -69,19 +72,31 @@ export function GallerySettings({
           aria-labelledby={colsLabelId}
         >
           <span className={styles.sectionLabel} id={colsLabelId}>
-            Columns
+            Layout
           </span>
+          <button
+            type="button"
+            className={
+              layout === "wheel"
+                ? `${styles.col} ${styles.wheel} ${styles.colActive}`
+                : `${styles.col} ${styles.wheel}`
+            }
+            aria-pressed={layout === "wheel"}
+            onClick={() => onLayout("wheel")}
+          >
+            Wheel
+          </button>
           <div className={styles.cols}>
             {COL_OPTIONS.map((count) => (
               <button
                 key={count}
                 type="button"
                 className={
-                  cols === count ? `${styles.col} ${styles.colActive}` : styles.col
+                  layout === count ? `${styles.col} ${styles.colActive}` : styles.col
                 }
-                aria-pressed={cols === count}
+                aria-pressed={layout === count}
                 aria-label={`${count} column${count === 1 ? "" : "s"}`}
-                onClick={() => onCols(count)}
+                onClick={() => onLayout(count)}
               >
                 {count}
               </button>

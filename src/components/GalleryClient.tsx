@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { CardActions } from "@/components/CardActions";
-import { GallerySettings } from "@/components/GallerySettings";
+import { GallerySettings, type GalleryLayout } from "@/components/GallerySettings";
 import { ViewerStage } from "@/components/ViewerStage";
+import { WheelGallery } from "@/components/WheelGallery";
 import { WallButton } from "@/components/WallButton";
 import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
 export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
-  const [cols, setCols] = useState<number>(2);
+  const [layout, setLayout] = useState<GalleryLayout>("wheel");
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const ordered = useMemo(() => {
@@ -25,6 +26,12 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   }, [ordered]);
 
   const closeViewer = useCallback(() => setViewerIndex(null), []);
+
+  useEffect(() => {
+    if (layout !== "wheel") return;
+    document.body.classList.add("gallery-wheel");
+    return () => document.body.classList.remove("gallery-wheel");
+  }, [layout]);
 
   useEffect(() => {
     if (viewerIndex == null) return;
@@ -50,7 +57,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   const viewing = viewerIndex != null ? ordered[viewerIndex] : null;
 
   return (
-    <div className={styles.shell}>
+    <div className={layout === "wheel" ? `${styles.shell} ${styles.shellWheel}` : styles.shell}>
       <div className={styles.chrome}>
         <header className={styles.header}>
           <div className={styles.headerTop}>
@@ -61,7 +68,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               </span>
               <span className={styles.here}>Gallery</span>
             </div>
-            <GallerySettings cols={cols} onCols={setCols} />
+            <GallerySettings layout={layout} onLayout={setLayout} />
           </div>
           <p className={`${styles.summary} dim`} id="gallery-count">
             {ordered.length} wallpaper{ordered.length === 1 ? "" : "s"}
@@ -74,10 +81,12 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
         <div className={styles.empty} role="status">
           No wallpapers yet.
         </div>
+      ) : layout === "wheel" ? (
+        <WheelGallery wallpapers={ordered} onOpen={openViewer} />
       ) : (
         <div
           className={styles.grid}
-          style={{ ["--cols" as string]: String(cols) }}
+          style={{ ["--cols" as string]: String(layout) }}
         >
           {ordered.map((w) => (
             <article
@@ -101,7 +110,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                 <img
                   src={thumbUrl(
                     w.url,
-                    cols <= 1 ? 960 : cols === 2 ? 500 : 330,
+                    layout === 1 ? 960 : layout === 2 ? 500 : 330,
                   )}
                   alt=""
                   loading="lazy"

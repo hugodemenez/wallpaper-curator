@@ -22,6 +22,13 @@
   justify-content: flex-start;
 }
 
+.wheel {
+  width: 100%;
+  margin: 0 0 6px;
+  flex: none;
+  letter-spacing: 0.02em;
+}
+
 .cols {
   display: flex;
   gap: 6px;

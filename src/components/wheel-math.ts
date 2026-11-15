@@ -53,9 +53,16 @@ export type ItemPose = {
   rotateX: number;
   scale: number;
   opacity: number;
+  /** 0 at the centre, about 2px on the next painting, capped at 6px. */
+  blur: number;
 };
 
-export function itemPose(index: number, offset: number, radius: number): ItemPose {
+export function itemPose(
+  index: number,
+  offset: number,
+  radius: number,
+  reducedMotion = false,
+): ItemPose {
   const theta = (index - offset) * WHEEL_STEP;
   const rad = (theta * Math.PI) / 180;
   const y = Math.sin(rad) * radius;
@@ -64,7 +71,35 @@ export function itemPose(index: number, offset: number, radius: number): ItemPos
   const t = Math.min(abs / 72, 1);
   const scale = 1.08 - t * 0.5;
   const opacity = abs > 76 ? 0 : 1 - t ** 1.2 * 0.9;
-  return { y, z, rotateX: -theta, scale, opacity };
+  const dist = Math.abs(index - offset);
+  const blur = reducedMotion || dist < 0.35 ? 0 : Math.min(6, dist * 2);
+  return { y, z, rotateX: -theta, scale, opacity, blur };
+}
+
+/** Higher for the painting closest to centre, so it always paints last. */
+export function itemZIndex(index: number, offset: number) {
+  return 5000 - Math.round(Math.abs(index - offset) * 100);
+}
+
+/**
+ * Each card carries its own perspective. They are flat layers, not one shared
+ * 3D scene, so Safari cannot depth-test a neighbour through the centre image.
+ */
+export function itemTransform(pose: ItemPose) {
+  return `translate(-50%, -50%) perspective(860px) translate3d(0px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateX(${pose.rotateX.toFixed(2)}deg) scale(${pose.scale.toFixed(4)})`;
+}
+
+/** Indices to warm ahead of the mounted arc. Wider in the direction of travel. */
+export function prefetchRange(offset: number, velocity: number, count: number) {
+  const max = Math.max(0, count - 1);
+  const dir = velocity > 0.5 ? 1 : velocity < -0.5 ? -1 : 0;
+  const extra = dir === 0 ? 0 : Math.min(4, Math.ceil(Math.abs(velocity) / 3));
+  const before = 7 + (dir < 0 ? extra : 0);
+  const after = 7 + (dir > 0 ? extra : 0);
+  return {
+    start: clamp(Math.floor(offset) - before, 0, max),
+    end: clamp(Math.ceil(offset) + after, 0, max),
+  };
 }
 
 export function visibleRange(offset: number, count: number) {

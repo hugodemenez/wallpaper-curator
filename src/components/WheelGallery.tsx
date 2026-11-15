@@ -2,16 +2,20 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardActions } from "@/components/CardActions";
-import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
+import { type Wallpaper } from "@/lib/wallpapers";
 import {
   clamp,
   itemPose,
+  itemTransform,
+  itemZIndex,
+  prefetchRange,
   project,
   rubberOffset,
   stepSpring,
   visibleRange,
   wheelMetrics,
 } from "@/components/wheel-math";
+import { prefetchUrl, showDecoded, thumbFor } from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
 type Frame = { nearest: number; start: number; end: number };
@@ -34,9 +38,11 @@ export function WheelGallery({
   const reducedRef = useRef(false);
   const metricsRef = useRef({ cardW: 280, radius: 360, pxPerItem: 140 });
   const movedRef = useRef(false);
+  const publishRef = useRef<() => void>(() => {});
   const rafRef = useRef(0);
   const snapTimerRef = useRef(0);
   const countRef = useRef(count);
+  const wallpapersRef = useRef(wallpapers);
 
   const [frame, setFrame] = useState<Frame>(() => visibleRange(0, count));
   const [dragging, setDragging] = useState(false);
@@ -44,16 +50,51 @@ export function WheelGallery({
   const paint = useCallback(() => {
     const { radius, cardW } = metricsRef.current;
     const offset = offsetRef.current;
+    const velocity = velocityRef.current;
+    const reduced = reducedRef.current;
     const stage = stageRef.current;
     if (stage) stage.style.setProperty("--card-w", `${cardW}px`);
+    const fast = Math.abs(velocity) > 2.4;
     for (const [index, node] of nodesRef.current) {
-      const pose = itemPose(index, offset, radius);
-      node.style.transform = `translate(-50%, -50%) translate3d(0px, ${pose.y}px, ${pose.z}px) rotateX(${pose.rotateX}deg) scale(${pose.scale})`;
+      const pose = itemPose(index, offset, radius, reduced);
+      const wallpaper = wallpapersRef.current[index];
+      node.style.transform = itemTransform(pose);
       node.style.opacity = String(pose.opacity);
-      node.style.zIndex = String(Math.round(2000 + pose.z));
+      node.style.zIndex = String(itemZIndex(index, offset));
+      node.style.filter = pose.blur < 0.5 ? "none" : `blur(${pose.blur.toFixed(2)}px)`;
       node.style.pointerEvents = pose.opacity < 0.2 ? "none" : "auto";
       if (pose.opacity < 0.2) node.setAttribute("aria-hidden", "true");
       else node.removeAttribute("aria-hidden");
+      const image = node.querySelector("img");
+      if (wallpaper && image instanceof HTMLImageElement) {
+        const dist = Math.abs(index - offset);
+        const hi = thumbFor(wallpaper.url, true);
+        const lo = thumbFor(wallpaper.url, false);
+        const keepHi = image.dataset.src === hi && dist < 0.85;
+        const desired = (dist < 0.45 && !fast) || keepHi ? hi : lo;
+        showDecoded(image, desired);
+        if (image.naturalWidth === 0) {
+          node.style.opacity = "0";
+          image.onload = () => {
+            image.onload = null;
+            publishRef.current();
+          };
+        }
+      }
+    }
+    const span = prefetchRange(offset, velocity, countRef.current);
+    const list = wallpapersRef.current;
+    for (let index = span.start; index <= span.end; index += 1) {
+      const wallpaper = list[index];
+      if (!wallpaper) continue;
+      prefetchUrl(thumbFor(wallpaper.url, false));
+    }
+    if (!fast) {
+      const nearest = Math.round(offset);
+      for (const index of [nearest - 1, nearest, nearest + 1]) {
+        const wallpaper = list[index];
+        if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, true));
+      }
     }
   }, []);
 
@@ -67,6 +108,10 @@ export function WheelGallery({
         : next,
     );
   }, [paint]);
+
+  useEffect(() => {
+    publishRef.current = publish;
+  }, [publish]);
 
   const measure = useCallback(() => {
     const stage = stageRef.current;
@@ -124,7 +169,8 @@ export function WheelGallery({
 
   useEffect(() => {
     countRef.current = count;
-  }, [count]);
+    wallpapersRef.current = wallpapers;
+  }, [count, wallpapers]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -331,13 +377,7 @@ export function WheelGallery({
               onClick={() => onItemClick(index)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={thumbUrl(wallpaper.url, 960)}
-                alt=""
-                draggable={false}
-                decoding="async"
-                loading={centered ? "eager" : "lazy"}
-              />
+              <img alt="" draggable={false} decoding="async" />
             </button>
           );
         })}

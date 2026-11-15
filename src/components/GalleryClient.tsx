@@ -2,78 +2,27 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { CardActions } from "@/components/CardActions";
+import { GallerySettings } from "@/components/GallerySettings";
 import { ViewerStage } from "@/components/ViewerStage";
 import { WallButton } from "@/components/WallButton";
-import { fmtSize, thumbUrl, type Wallpaper } from "@/lib/wallpapers";
+import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
-const COL_OPTIONS = [1, 2, 3, 4] as const;
-
-type SortKey =
-  | "name-asc"
-  | "name-desc"
-  | "added-desc"
-  | "added-asc"
-  | "date-desc"
-  | "date-asc"
-  | "size-desc"
-  | "size-asc";
-
 export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<SortKey>("added-desc");
   const [cols, setCols] = useState<number>(2);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let list = wallpapers;
-    if (q) {
-      list = list.filter((w) => {
-        const hay = [
-          w.name,
-          w.artist,
-          w.date,
-          w.added,
-          w.tones.join(" "),
-          w.source,
-        ]
-          .join(" ")
-          .toLowerCase();
-        return hay.includes(q);
-      });
-    }
-    const sorted = [...list];
-    sorted.sort((a, b) => {
-      switch (sort) {
-        case "name-asc":
-          return a.name.localeCompare(b.name);
-        case "name-desc":
-          return b.name.localeCompare(a.name);
-        case "added-asc":
-          return a.added.localeCompare(b.added) || a.name.localeCompare(b.name);
-        case "added-desc":
-          return b.added.localeCompare(a.added) || a.name.localeCompare(b.name);
-        case "date-asc":
-          return a.date.localeCompare(b.date) || a.name.localeCompare(b.name);
-        case "date-desc":
-          return b.date.localeCompare(a.date) || a.name.localeCompare(b.name);
-        case "size-asc":
-          return (a.size ?? 0) - (b.size ?? 0);
-        case "size-desc":
-          return (b.size ?? 0) - (a.size ?? 0);
-        default:
-          return 0;
-      }
-    });
-    return sorted;
-  }, [wallpapers, query, sort]);
+  const ordered = useMemo(() => {
+    return [...wallpapers].sort(
+      (a, b) => b.added.localeCompare(a.added) || a.name.localeCompare(b.name),
+    );
+  }, [wallpapers]);
 
   const openViewer = useCallback((id: string) => {
-    const i = filtered.findIndex((w) => w.id === id);
+    const i = ordered.findIndex((w) => w.id === id);
     if (i >= 0) setViewerIndex(i);
-  }, [filtered]);
+  }, [ordered]);
 
   const closeViewer = useCallback(() => setViewerIndex(null), []);
 
@@ -86,7 +35,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
       }
       if (e.key === "ArrowRight") {
         setViewerIndex((i) =>
-          i == null ? i : Math.min(filtered.length - 1, i + 1),
+          i == null ? i : Math.min(ordered.length - 1, i + 1),
         );
       }
     };
@@ -96,9 +45,9 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
       document.body.classList.remove("viewer-open");
       window.removeEventListener("keydown", onKey);
     };
-  }, [viewerIndex, filtered.length, closeViewer]);
+  }, [viewerIndex, ordered.length, closeViewer]);
 
-  const viewing = viewerIndex != null ? filtered[viewerIndex] : null;
+  const viewing = viewerIndex != null ? ordered[viewerIndex] : null;
 
   return (
     <div className={styles.shell}>
@@ -112,82 +61,32 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               </span>
               <span className={styles.here}>Gallery</span>
             </div>
-            <ThemeToggle />
+            <GallerySettings cols={cols} onCols={setCols} />
           </div>
           <p className={`${styles.summary} dim`} id="gallery-count">
-            {filtered.length} wallpaper{filtered.length === 1 ? "" : "s"}
-            {query ? ` · filter “${query}”` : ""}
+            {ordered.length} wallpaper{ordered.length === 1 ? "" : "s"}
           </p>
-          <div className={styles.row}>
-            <label className={styles.srOnly} htmlFor="gallery-search">
-              Search wallpapers
-            </label>
-            <input
-              id="gallery-search"
-              className={styles.search}
-              type="search"
-              placeholder="Search artist or title…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              autoComplete="off"
-              enterKeyHint="search"
-            />
-            <label className={styles.srOnly} htmlFor="gallery-sort">
-              Sort wallpapers
-            </label>
-            <select
-              id="gallery-sort"
-              className={styles.sort}
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-            >
-              <option value="added-desc">Recently added</option>
-              <option value="added-asc">First added</option>
-              <option value="name-asc">Name A–Z</option>
-              <option value="name-desc">Name Z–A</option>
-              <option value="date-desc">Artwork newest</option>
-              <option value="date-asc">Artwork oldest</option>
-              <option value="size-desc">Size largest</option>
-              <option value="size-asc">Size smallest</option>
-            </select>
-            <div
-              className={styles.cols}
-              role="group"
-              aria-label="Number of columns"
-            >
-              {COL_OPTIONS.map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  className={cols === n ? styles.colsActive : undefined}
-                  aria-pressed={cols === n}
-                  aria-label={`${n} column${n === 1 ? "" : "s"}`}
-                  onClick={() => setCols(n)}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
         </header>
       </div>
 
       <main id="main" aria-labelledby="gallery-count">
-      {filtered.length === 0 ? (
+      {ordered.length === 0 ? (
         <div className={styles.empty} role="status">
-          No wallpapers match your search.
+          No wallpapers yet.
         </div>
       ) : (
         <div
           className={styles.grid}
           style={{ ["--cols" as string]: String(cols) }}
         >
-          {filtered.map((w) => (
+          {ordered.map((w) => (
             <article
               key={w.id}
               className={styles.card}
+              data-gallery-card=""
               onClick={() => openViewer(w.id)}
               onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   openViewer(w.id);
@@ -213,29 +112,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
                 <div className={styles.name}>
                   {w.artist} — {w.name}
                 </div>
-                <div className={styles.size}>
-                  Artwork {w.date} · Added {w.added}
-                </div>
-                <div className={styles.size}>
-                  {fmtSize(w.size)} · {w.tones.join(", ")}
-                </div>
-                <div className={styles.actions}>
-                  <WallButton
-                    imageUrl={w.url}
-                    title={`${w.artist} — ${w.name}`}
-                    onClickCapture={(e) => e.stopPropagation()}
-                  />
-                  <a
-                    href={w.url}
-                    download
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Download ${w.name}`}
-                  >
-                    dl
-                  </a>
-                </div>
+                <CardActions
+                  imageUrl={w.url}
+                  title={`${w.artist} — ${w.name}`}
+                />
               </div>
             </article>
           ))}
@@ -255,7 +135,7 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
               {viewing.artist} — {viewing.name}
             </span>
             <span className={`${styles.count} dim`}>
-              {viewerIndex + 1} / {filtered.length}
+              {viewerIndex + 1} / {ordered.length}
             </span>
             <WallButton
               imageUrl={viewing.url}
@@ -278,13 +158,13 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
             src={thumbUrl(viewing.url, 1920)}
             alt={`${viewing.artist} — ${viewing.name}`}
             canPrev={viewerIndex > 0}
-            canNext={viewerIndex < filtered.length - 1}
+            canNext={viewerIndex < ordered.length - 1}
             onPrev={() => setViewerIndex(viewerIndex - 1)}
             onNext={() => setViewerIndex(viewerIndex + 1)}
             onClose={closeViewer}
           />
           <div className={styles.film} role="list" aria-label="Wallpaper filmstrip">
-            {filtered.map((w, i) => (
+            {ordered.map((w, i) => (
               <button
                 key={w.id}
                 type="button"

@@ -18,7 +18,13 @@ const LABELS: Record<ThemePreference, string> = {
   dark: "Theme: dark",
 };
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  showLabel = false,
+}: {
+  className?: string;
+  showLabel?: boolean;
+}) {
   const [pref, setPref] = useState<ThemePreference>("system");
   const [resolved, setResolved] = useState<ResolvedTheme>("light");
   const [ready, setReady] = useState(false);
@@ -61,6 +67,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={LABELS[pref]}
       title={LABELS[pref]}
       data-ready={ready ? "true" : "false"}
+      data-show-label={showLabel ? "true" : "false"}
     >
       <span className={styles.icons} aria-hidden="true">
         <span

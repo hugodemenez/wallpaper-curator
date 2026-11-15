@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 import { wallpaperDeeplink } from "@/lib/raycast";
 import {
   canNativeShareFiles,
@@ -15,6 +16,8 @@ type Props = {
   imageUrl: string;
   title: string;
   className?: string;
+  /** Visible label. Omit for the compact "wall" control. */
+  text?: string;
   onClickCapture?: (e: React.MouseEvent) => void;
 };
 
@@ -24,8 +27,10 @@ export function WallButton({
   imageUrl,
   title,
   className,
+  text,
   onClickCapture,
 }: Props) {
+  const sheetTitleId = useId();
   const [mode, setMode] = useState<Mode>("pending");
   const [busy, setBusy] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -113,41 +118,23 @@ export function WallButton({
     setError(null);
   }
 
-  if (mode === "raycast") {
-    return (
-      <a
-        className={className}
-        href={wallpaperDeeplink(imageUrl)}
-        aria-label={label}
-        onClick={onClickCapture}
-      >
-        wall
-      </a>
-    );
-  }
+  const visible = text ?? (busy ? "…" : "wall");
+  const controlClass = text
+    ? className
+    : mode === "raycast"
+      ? className
+      : [styles.wallBtn, className].filter(Boolean).join(" ");
 
-  return (
-    <>
-      <button
-        type="button"
-        className={`${styles.wallBtn} ${className ?? ""}`}
-        aria-label={label}
-        aria-busy={busy || mode === "pending"}
-        disabled={busy || mode === "pending"}
-        onClick={openInstructions}
-      >
-        {busy ? "…" : "wall"}
-      </button>
-
-      {sheetOpen && (
+  const sheet = (
         <div
           className={styles.tip}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="wall-tip-title"
+          aria-labelledby={sheetTitleId}
+          onClick={(event) => event.stopPropagation()}
         >
           <div className={styles.tipCard}>
-            <h2 id="wall-tip-title" className={styles.tipTitle}>
+            <h2 id={sheetTitleId} className={styles.tipTitle}>
               Set as wallpaper
             </h2>
 
@@ -214,7 +201,32 @@ export function WallButton({
             onClick={closeSheet}
           />
         </div>
+  );
+
+  return (
+    <>
+      {mode === "raycast" ? (
+        <a
+          className={controlClass}
+          href={wallpaperDeeplink(imageUrl)}
+          aria-label={text ? undefined : label}
+          onClick={onClickCapture}
+        >
+          {visible}
+        </a>
+      ) : (
+        <button
+          type="button"
+          className={controlClass}
+          aria-label={text ? undefined : label}
+          aria-busy={busy || mode === "pending"}
+          disabled={busy || mode === "pending"}
+          onClick={openInstructions}
+        >
+          {visible}
+        </button>
       )}
+      {sheetOpen ? createPortal(sheet, document.body) : null}
     </>
   );
 }

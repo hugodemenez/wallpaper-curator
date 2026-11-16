@@ -75,15 +75,37 @@ export function itemPose(
   const abs = Math.abs(theta);
   const t = Math.min(abs / 72, 1);
   const scale = 1.08 - t * 0.5;
-  const opacity = abs > 76 ? 0 : 1 - t ** 1.2 * 0.9;
+  // Smooth fade to zero between 66° and 78° instead of a hard cut-off.
+  const edge = Math.min(1, Math.max(0, (78 - abs) / 12));
+  const opacity = (1 - t ** 1.2 * 0.9) * edge;
   const dist = Math.abs(delta);
-  const blur = reducedMotion || dist < 0.35 ? 0 : Math.min(6, dist * 2);
+  // Continuous: 0 at centre, 2px per painting, capped at 6px.
+  const blur = reducedMotion ? 0 : Math.min(6, dist * 2);
   return { y, z, rotateX: -theta, scale, opacity, blur };
 }
 
-/** Higher for the painting closest to centre, so it always paints last. */
+/** Blur radii pre-baked into stacked layers on each card (see BLUR_LAYERS). */
+export const BLUR_LEVELS = [3, 6] as const;
+
+/**
+ * Opacity for the pre-blurred layers so a sharp base + 3px + 6px stack reads as
+ * a continuous `blur(px)`. Animating `filter` itself would re-rasterise every
+ * frame on iOS; opacity stays on the compositor.
+ */
+export function blurLayerOpacity(blur: number): [number, number] {
+  const [lo, hi] = BLUR_LEVELS;
+  const a = Math.min(1, Math.max(0, blur / lo));
+  const b = Math.min(1, Math.max(0, (blur - lo) / (hi - lo)));
+  return [a, b];
+}
+
+/**
+ * Higher for the painting closest to centre, so it always paints last.
+ * Quantised to whole steps so it only changes when the stacking order does,
+ * instead of every frame.
+ */
 export function itemZIndex(index: number, offset: number, count: number) {
-  return 5000 - Math.round(Math.abs(circularDelta(index, offset, count)) * 100);
+  return 1000 - Math.round(Math.abs(circularDelta(index, offset, count))) * 10;
 }
 
 /**
@@ -91,7 +113,7 @@ export function itemZIndex(index: number, offset: number, count: number) {
  * 3D scene, so Safari cannot depth-test a neighbour through the centre image.
  */
 export function itemTransform(pose: ItemPose) {
-  return `translate(-50%, -50%) perspective(860px) translate3d(0px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateX(${pose.rotateX.toFixed(2)}deg) scale(${pose.scale.toFixed(4)})`;
+  return `translate(-50%, -50%) perspective(860px) translate3d(0px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateX(${pose.rotateX.toFixed(3)}deg) scale(${pose.scale.toFixed(4)})`;
 }
 
 function signedWindow(velocity: number) {
@@ -133,7 +155,38 @@ export function visibleSlots(offset: number, count: number) {
   return { nearest, slots };
 }
 
-export function stepSpring(
+/** Natural frequency of the snap spring (rad/s). ~0.45s to settle. */
+const SPRING_OMEGA = 13;
+/** Accept a pure ease-out decay when its rate lands in this range (1/s). */
+const DECAY_MIN = 2.2;
+const DECAY_MAX = 14;
+
+export type Motion =
+  | { kind: "decay"; rate: number }
+  | { kind: "spring"; omega: number };
+
+/**
+ * Pick how to reach `target` from `x` moving at `velocity` (items/s).
+ * A flick whose momentum already carries it to the snapped target uses
+ * exponential decay (the iOS scroll-view curve), so release velocity is
+ * preserved exactly and the wheel eases out onto the item. Anything else uses
+ * a critically damped spring, which never overshoots.
+ */
+export function planMotion(x: number, velocity: number, target: number): Motion {
+  const remaining = target - x;
+  if (Math.abs(remaining) > 0.02 && Math.sign(remaining) === Math.sign(velocity)) {
+    const rate = velocity / remaining;
+    if (rate >= DECAY_MIN && rate <= DECAY_MAX) return { kind: "decay", rate };
+  }
+  return { kind: "spring", omega: SPRING_OMEGA };
+}
+
+/**
+ * Advance the motion by `dt` seconds using the closed-form solution, so the
+ * curve is identical at 60Hz, 120Hz or with dropped frames.
+ */
+export function stepMotion(
+  motion: Motion,
   x: number,
   velocity: number,
   target: number,
@@ -141,12 +194,21 @@ export function stepSpring(
   reduced: boolean,
 ) {
   if (reduced) return { x: target, velocity: 0, done: true };
-  const stiffness = 86;
-  const damping = 17;
-  const acc = -stiffness * (x - target) - damping * velocity;
-  const nextVelocity = velocity + acc * dt;
-  const next = x + nextVelocity * dt;
-  const done = Math.abs(next - target) < 0.001 && Math.abs(nextVelocity) < 0.02;
+  const e0 = x - target;
+  let e: number;
+  let v: number;
+  if (motion.kind === "decay") {
+    const k = Math.exp(-motion.rate * dt);
+    e = e0 * k;
+    v = -motion.rate * e;
+  } else {
+    const w = motion.omega;
+    const c2 = velocity + w * e0;
+    const k = Math.exp(-w * dt);
+    e = (e0 + c2 * dt) * k;
+    v = (c2 - w * (e0 + c2 * dt)) * k;
+  }
+  const done = Math.abs(e) < 0.0015 && Math.abs(v) < 0.06;
   if (done) return { x: target, velocity: 0, done: true };
-  return { x: next, velocity: nextVelocity, done: false };
+  return { x: target + e, velocity: v, done: false };
 }

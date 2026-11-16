@@ -37,8 +37,9 @@
   background: transparent;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
   backface-visibility: hidden;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -63,6 +64,26 @@
   backface-visibility: hidden;
 }
 
+/*
+ * Pre-blurred copies stacked over the sharp image. The blur radius never
+ * changes, so it is rasterised once; only opacity animates.
+ */
+.item img.soft3,
+.item img.soft6 {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.item img.soft3 {
+  filter: blur(3px);
+}
+
+.item img.soft6 {
+  filter: blur(6px);
+}
+
 .caption {
   position: relative;
   z-index: 2;
@@ -74,17 +95,81 @@
   background: var(--bg);
 }
 
+/* Always two lines tall, whatever the title length, so nothing below moves. */
+.titleBox {
+  --title-lh: 1.35;
+  position: relative;
+  width: min(36rem, 100%);
+  height: calc(2em * var(--title-lh));
+  font-size: 1rem;
+  flex: none;
+  contain: layout paint style;
+}
+
 .title {
+  position: absolute;
+  inset: 0;
   margin: 0;
-  max-width: 36rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   font-size: 1rem;
-  line-height: 1.35;
-  text-wrap: balance;
+  line-height: var(--title-lh);
   color: var(--fg);
+}
+
+.title > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.titleIn {
+  animation: title-in 220ms ease-out both;
+}
+
+.titleOut {
+  animation: title-out 160ms ease-in both;
+  pointer-events: none;
+}
+
+@keyframes title-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes title-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .titleIn,
+  .titleOut {
+    animation: none;
+  }
+
+  .titleOut {
+    opacity: 0;
+  }
 }
 
 .actions {
   display: flex;
   justify-content: center;
+  flex: none;
 }

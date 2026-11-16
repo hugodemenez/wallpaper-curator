@@ -1,16 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardActions } from "@/components/CardActions";
 import { type Wallpaper } from "@/lib/wallpapers";
 import {
+  blurLayerOpacity,
   circularDelta,
   itemPose,
   itemTransform,
   itemZIndex,
   prefetchIndices,
+  planMotion,
   project,
-  stepSpring,
+  stepMotion,
+  type Motion,
   visibleSlots,
   wrapIndex,
   wheelMetrics,
@@ -19,6 +22,23 @@ import { prefetchUrl, showDecoded, thumbFor } from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
 type Frame = { nearest: number; slots: number[] };
+
+/** DOM handles for one card plus the last values written, so we only touch what changed. */
+type Card = {
+  node: HTMLButtonElement;
+  sharp: HTMLImageElement;
+  soft: [HTMLImageElement, HTMLImageElement];
+  z: number;
+  live: boolean;
+  softOn: [boolean, boolean];
+};
+
+/** Fastest the wheel may spin after a flick, in paintings per second. */
+const MAX_VELOCITY = 40;
+
+function setLayerVisible(el: HTMLElement, on: boolean) {
+  el.style.visibility = on ? "visible" : "hidden";
+}
 
 export function WheelGallery({
   wallpapers,
@@ -29,7 +49,10 @@ export function WheelGallery({
 }) {
   const count = wallpapers.length;
   const stageRef = useRef<HTMLDivElement>(null);
-  const nodesRef = useRef<Map<number, HTMLButtonElement>>(new Map());
+  const cardsRef = useRef<Map<number, Card>>(new Map());
+  // Inline ref callbacks re-run on every render; keep each card's cached
+  // style state on its DOM node so it is not reset mid-animation.
+  const cardStateRef = useRef<WeakMap<HTMLButtonElement, Card>>(new WeakMap());
   const rawRef = useRef(0);
   const offsetRef = useRef(0);
   const velocityRef = useRef(0);
@@ -40,6 +63,8 @@ export function WheelGallery({
   const movedRef = useRef(false);
   const publishRef = useRef<() => void>(() => {});
   const rafRef = useRef(0);
+  const frameRafRef = useRef(0);
+  const motionRef = useRef<Motion>({ kind: "spring", omega: 13 });
   const snapTimerRef = useRef(0);
   const countRef = useRef(count);
   const wallpapersRef = useRef(wallpapers);
@@ -47,43 +72,75 @@ export function WheelGallery({
   const [frame, setFrame] = useState<Frame>(() => visibleSlots(0, count));
   const [dragging, setDragging] = useState(false);
 
+  /**
+   * Writes transforms / opacity only. No layout reads happen here, and values
+   * that rarely change (z-index, visibility, pointer-events) are written only
+   * when they actually change.
+   */
   const paint = useCallback(() => {
-    const { radius, cardW } = metricsRef.current;
+    const { radius } = metricsRef.current;
     const offset = offsetRef.current;
     const velocity = velocityRef.current;
     const reduced = reducedRef.current;
-    const stage = stageRef.current;
-    if (stage) stage.style.setProperty("--card-w", `${cardW}px`);
+    const total = countRef.current;
+    const list = wallpapersRef.current;
     const fast = Math.abs(velocity) > 2.4;
-    for (const [index, node] of nodesRef.current) {
-      const pose = itemPose(index, offset, radius, countRef.current, reduced);
-      const wallpaper = wallpapersRef.current[index];
+    for (const [index, card] of cardsRef.current) {
+      const { node, sharp, soft } = card;
+      const pose = itemPose(index, offset, radius, total, reduced);
+      const wallpaper = list[index];
       node.style.transform = itemTransform(pose);
-      node.style.opacity = String(pose.opacity);
-      node.style.zIndex = String(itemZIndex(index, offset, countRef.current));
-      node.style.filter = pose.blur < 0.5 ? "none" : `blur(${pose.blur.toFixed(2)}px)`;
-      node.style.pointerEvents = pose.opacity < 0.2 ? "none" : "auto";
-      if (pose.opacity < 0.2) node.setAttribute("aria-hidden", "true");
-      else node.removeAttribute("aria-hidden");
-      const image = node.querySelector("img");
-      if (wallpaper && image instanceof HTMLImageElement) {
-        const dist = Math.abs(index - offset);
+
+      const z = itemZIndex(index, offset, total);
+      if (z !== card.z) {
+        card.z = z;
+        node.style.zIndex = String(z);
+      }
+
+      const [a, b] = blurLayerOpacity(pose.blur);
+      const levels = [a, b];
+      for (let i = 0; i < 2; i += 1) {
+        const on = levels[i] > 0.001;
+        if (on !== card.softOn[i]) {
+          card.softOn[i] = on;
+          setLayerVisible(soft[i], on);
+          if (!on) soft[i].style.opacity = "0";
+        }
+        if (on) soft[i].style.opacity = levels[i].toFixed(3);
+      }
+
+      let opacity = pose.opacity;
+      if (wallpaper) {
+        const dist = Math.abs(circularDelta(index, offset, total));
         const hi = thumbFor(wallpaper.url, true);
         const lo = thumbFor(wallpaper.url, false);
-        const keepHi = image.dataset.src === hi && dist < 0.85;
-        const desired = (dist < 0.45 && !fast) || keepHi ? hi : lo;
-        showDecoded(image, desired);
-        if (image.naturalWidth === 0) {
-          node.style.opacity = "0";
-          image.onload = () => {
-            image.onload = null;
+        const keepHi = sharp.dataset.src === hi && dist < 0.85;
+        showDecoded(sharp, (dist < 0.45 && !fast) || keepHi ? hi : lo);
+        // Blurred layers never need the large bitmap.
+        if (card.softOn[0]) showDecoded(soft[0], lo);
+        if (card.softOn[1]) showDecoded(soft[1], lo);
+        if (sharp.naturalWidth === 0) {
+          opacity = 0;
+          sharp.onload = () => {
+            sharp.onload = null;
             publishRef.current();
           };
         }
       }
+      node.style.opacity = opacity.toFixed(3);
+
+      const live = pose.opacity >= 0.2;
+      if (live !== card.live) {
+        card.live = live;
+        node.style.pointerEvents = live ? "auto" : "none";
+        if (live) node.removeAttribute("aria-hidden");
+        else node.setAttribute("aria-hidden", "true");
+      }
+      const visible = opacity > 0.001;
+      if (node.style.visibility !== (visible ? "visible" : "hidden")) {
+        setLayerVisible(node, visible);
+      }
     }
-    const list = wallpapersRef.current;
-    const total = countRef.current;
     for (const index of prefetchIndices(offset, velocity, total)) {
       const wallpaper = list[index];
       if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, false));
@@ -122,31 +179,50 @@ export function WheelGallery({
     publishRef.current = publish;
   }, [publish]);
 
-  const measure = useCallback(() => {
-    const stage = stageRef.current;
-    const arc = stage?.querySelector("[data-wheel-arc]");
-    if (!arc) return;
-    const rect = arc.getBoundingClientRect();
-    metricsRef.current = wheelMetrics(rect.width, rect.height);
+  /** Called on mount and from ResizeObserver only, never per frame. */
+  const applySize = useCallback((width: number, height: number) => {
+    metricsRef.current = wheelMetrics(width, height);
+    stageRef.current?.style.setProperty("--card-w", `${metricsRef.current.cardW}px`);
+  }, []);
+
+  /** Coalesce input (pointer / wheel) into at most one paint per frame. */
+  const schedulePublish = useCallback(() => {
+    if (frameRafRef.current) return;
+    frameRafRef.current = requestAnimationFrame(() => {
+      frameRafRef.current = 0;
+      publishRef.current();
+    });
   }, []);
 
   const stopGlide = useCallback(() => {
     cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
     window.clearTimeout(snapTimerRef.current);
   }, []);
 
+  /**
+   * Animate to `target` starting at `velocity` (paintings/s). A flick decays
+   * exponentially onto the target; everything else uses a critically damped
+   * spring. Both are solved in closed form per frame, so motion stays smooth
+   * regardless of frame rate.
+   */
   const glideTo = useCallback(
-    (target: number, velocity: number) => {
-      targetRef.current = countRef.current <= 1 ? 0 : target;
-      velocityRef.current = velocity;
-      modeRef.current = "glide";
+    (target: number, velocity: number, motion?: Motion) => {
+      cancelAnimationFrame(frameRafRef.current);
+      frameRafRef.current = 0;
       stopGlide();
-      let last = 0;
+      targetRef.current = countRef.current <= 1 ? 0 : target;
+      velocityRef.current = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, velocity));
+      motionRef.current =
+        motion ?? planMotion(offsetRef.current, velocityRef.current, targetRef.current);
+      modeRef.current = "glide";
+      let last = performance.now();
       const tick = (now: number) => {
         if (modeRef.current !== "glide") return;
-        const dt = last === 0 ? 0.016 : Math.min(0.032, (now - last) / 1000);
+        const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
         last = now;
-        const step = stepSpring(
+        const step = stepMotion(
+          motionRef.current,
           offsetRef.current,
           velocityRef.current,
           targetRef.current,
@@ -158,7 +234,10 @@ export function WheelGallery({
         velocityRef.current = step.velocity;
         publish();
         if (!step.done) rafRef.current = requestAnimationFrame(tick);
-        else modeRef.current = "idle";
+        else {
+          rafRef.current = 0;
+          modeRef.current = "idle";
+        }
       };
       rafRef.current = requestAnimationFrame(tick);
     },
@@ -190,10 +269,19 @@ export function WheelGallery({
     return () => mq.removeEventListener("change", apply);
   }, []);
 
+  // Newly mounted cards get their pose before the browser paints them.
   useLayoutEffect(() => {
-    measure();
     paint();
-  }, [measure, paint, frame.nearest, frame.slots]);
+  }, [paint, frame.nearest, frame.slots]);
+
+  // One layout read on mount; afterwards sizes arrive via ResizeObserver.
+  useLayoutEffect(() => {
+    const arc = stageRef.current?.querySelector("[data-wheel-arc]");
+    if (!arc) return;
+    const rect = arc.getBoundingClientRect();
+    applySize(rect.width, rect.height);
+    paint();
+  }, [applySize, paint]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -201,28 +289,35 @@ export function WheelGallery({
     const arc = stage.querySelector("[data-wheel-arc]");
     if (!arc) return;
 
-    const observer = new ResizeObserver(() => {
-      measure();
+    let stageHeight = stage.clientHeight;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === arc) {
+          applySize(entry.contentRect.width, entry.contentRect.height);
+        } else {
+          stageHeight = entry.contentRect.height;
+        }
+      }
       paint();
     });
+    observer.observe(stage);
     observer.observe(arc);
 
     const onWheel = (event: WheelEvent) => {
       if (event.ctrlKey) return;
       if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
       event.preventDefault();
-      stopGlide();
-      modeRef.current = "drag";
       let dy = event.deltaY;
       if (event.deltaMode === 1) dy *= 16;
-      if (event.deltaMode === 2) dy *= stage.getBoundingClientRect().height;
-      rawRef.current += dy / metricsRef.current.pxPerItem;
-      offsetRef.current = rawRef.current;
-      publish();
-      window.clearTimeout(snapTimerRef.current);
+      if (event.deltaMode === 2) dy *= stageHeight;
+      // Mouse wheels jump in big notches; follow them with a stiff spring so
+      // the wheel glides instead of stepping. Trackpads barely lag behind.
+      const base = modeRef.current === "glide" ? targetRef.current : rawRef.current;
+      rawRef.current = base + dy / metricsRef.current.pxPerItem;
+      glideTo(rawRef.current, velocityRef.current, { kind: "spring", omega: 26 });
       snapTimerRef.current = window.setTimeout(() => {
-        glideTo(Math.round(rawRef.current), 0);
-      }, 90);
+        glideTo(Math.round(targetRef.current), velocityRef.current);
+      }, 110);
     };
 
     const blockTouchMove = (event: TouchEvent) => {
@@ -236,8 +331,10 @@ export function WheelGallery({
       stage.removeEventListener("wheel", onWheel);
       stage.removeEventListener("touchmove", blockTouchMove);
       stopGlide();
+      cancelAnimationFrame(frameRafRef.current);
+      frameRafRef.current = 0;
     };
-  }, [glideTo, measure, paint, publish, stopGlide]);
+  }, [applySize, glideTo, paint, stopGlide]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -298,11 +395,14 @@ export function WheelGallery({
     }
     const now = event.timeStamp;
     drag.samples.push({ y: event.clientY, t: now });
-    const recent = now - 80;
+    const recent = now - 100;
     while (drag.samples.length > 2 && drag.samples[0].t < recent) drag.samples.shift();
+    const first = drag.samples[0];
+    const span = Math.max(16, now - first.t);
+    velocityRef.current = -((event.clientY - first.y) / span) * 1000 / metricsRef.current.pxPerItem;
     rawRef.current += -dy / metricsRef.current.pxPerItem;
     offsetRef.current = rawRef.current;
-    publish();
+    schedulePublish();
   }
 
   function endDrag(event: React.PointerEvent<HTMLDivElement>) {
@@ -323,10 +423,12 @@ export function WheelGallery({
     const sample =
       [...drag.samples].reverse().find((point) => now - point.t > 16) ?? drag.samples[0];
     const dt = Math.max(16, now - sample.t);
-    const vPx = ((event.clientY - sample.y) / dt) * 1000;
+    // A finger resting before lift-off means no momentum.
+    const stale = now - drag.samples[drag.samples.length - 1].t > 60;
+    const vPx = stale ? 0 : ((event.clientY - sample.y) / dt) * 1000;
     const px = metricsRef.current.pxPerItem;
-    const projected = rawRef.current + -project(vPx) / px;
-    const visualVelocity = -vPx / px;
+    const visualVelocity = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, -vPx / px));
+    const projected = rawRef.current + -project(-visualVelocity * px) / px;
     glideTo(Math.round(projected), visualVelocity);
     window.setTimeout(() => {
       movedRef.current = false;
@@ -368,8 +470,24 @@ export function WheelGallery({
               type="button"
               className={styles.item}
               ref={(node) => {
-                if (node) nodesRef.current.set(index, node);
-                else nodesRef.current.delete(index);
+                if (!node) {
+                  cardsRef.current.delete(index);
+                  return;
+                }
+                let card = cardStateRef.current.get(node);
+                if (!card) {
+                  const imgs = node.querySelectorAll("img");
+                  card = {
+                    node,
+                    sharp: imgs[0],
+                    soft: [imgs[1], imgs[2]],
+                    z: Number.NaN,
+                    live: true,
+                    softOn: [true, true],
+                  };
+                  cardStateRef.current.set(node, card);
+                }
+                cardsRef.current.set(index, card);
               }}
               data-wheel-item={index}
               aria-current={centered ? "true" : undefined}
@@ -382,15 +500,18 @@ export function WheelGallery({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" draggable={false} decoding="async" />
+              {/* Pre-blurred copies; their opacity crossfades with distance. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img alt="" className={styles.soft3} draggable={false} decoding="async" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img alt="" className={styles.soft6} draggable={false} decoding="async" />
             </button>
           );
         })}
       </div>
       {current && (
         <div className={styles.caption}>
-          <p className={styles.title} aria-live="polite">
-            {current.artist} — {current.name}
-          </p>
+          <CaptionTitle id={current.id} text={`${current.artist} — ${current.name}`} />
           <div className={styles.actions}>
             <CardActions
               imageUrl={current.url}
@@ -402,3 +523,35 @@ export function WheelGallery({
     </div>
   );
 }
+
+type TitleLayer = { id: string; text: string };
+
+/**
+ * Fixed two-line title block. The new title fades in over the old one, both
+ * absolutely positioned, so the Download button below never moves.
+ */
+const CaptionTitle = memo(function CaptionTitle({ id, text }: TitleLayer) {
+  const [layers, setLayers] = useState<{ current: TitleLayer; previous: TitleLayer | null }>(
+    () => ({ current: { id, text }, previous: null }),
+  );
+  if (layers.current.id !== id) {
+    setLayers({ current: { id, text }, previous: layers.current });
+  }
+  const { current, previous } = layers;
+  return (
+    <div className={styles.titleBox} aria-live="polite">
+      {previous && (
+        <p key={`out-${previous.id}`} className={`${styles.title} ${styles.titleOut}`} aria-hidden="true">
+          <span>{previous.text}</span>
+        </p>
+      )}
+      <p
+        key={`in-${current.id}`}
+        className={`${styles.title} ${previous ? styles.titleIn : ""}`}
+        title={current.text}
+      >
+        <span>{current.text}</span>
+      </p>
+    </div>
+  );
+});

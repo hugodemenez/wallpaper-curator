@@ -15,13 +15,14 @@ import {
   seamClips,
   type SeamSlot,
   stepMotion,
+  tinyPrefetchIndices,
   titleBlend,
   type Motion,
   visibleSlots,
   wrapIndex,
   wheelMetrics,
 } from "@/components/wheel-math";
-import { prefetchUrl, showDecoded, thumbFor } from "@/components/wheel-images";
+import { prefetchUrl, showDecoded, thumbFor, tinyFor } from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
 type Frame = { nearest: number; lo: number; slots: number[] };
@@ -160,11 +161,15 @@ export function WheelGallery({
         const dist = Math.abs(placed[slot].delta);
         const hi = thumbFor(wallpaper.url, true);
         const lo = thumbFor(wallpaper.url, false);
+        const tiny = tinyFor(wallpaper.url);
         const keepHi = sharp.dataset.src === hi && dist < 0.85;
-        showDecoded(sharp, (dist < 0.45 && !fast) || keepHi ? hi : lo);
+        // Never blank a card while its thumbnail is on the way: until the
+        // wanted size has decoded it shows the 500px or the tiny stand-in.
+        showDecoded(sharp, (dist < 0.45 && !fast) || keepHi ? hi : lo, [lo, tiny]);
         // Blurred layers never need the large bitmap.
-        if (card.softOn[0]) showDecoded(soft[0], lo);
-        if (card.softOn[1]) showDecoded(soft[1], lo);
+        if (card.softOn[0]) showDecoded(soft[0], lo, [tiny]);
+        if (card.softOn[1]) showDecoded(soft[1], lo, [tiny]);
+        // Only a card with no decoded picture at all stays hidden.
         if (sharp.naturalWidth === 0) {
           opacity = 0;
           sharp.onload = () => {
@@ -196,7 +201,16 @@ export function WheelGallery({
       if (hiEl) hiEl.style.opacity = loEl === hiEl ? "1" : mix.toFixed(3);
     }
 
-    for (const index of prefetchIndices(offset, velocity, total)) {
+    // Stand-ins first and far ahead (they are a few KB), so a fast flick never
+    // reaches a card that has nothing to show. A source that cannot be resized
+    // uses its web rendition as the stand-in.
+    for (const index of tinyPrefetchIndices(offset, velocity, total)) {
+      const wallpaper = list[index];
+      if (wallpaper) prefetchUrl(tinyFor(wallpaper.url) ?? thumbFor(wallpaper.url, false));
+    }
+    // While gliding, also warm every painting up to where the glide settles.
+    const target = modeRef.current === "glide" ? targetRef.current : undefined;
+    for (const index of prefetchIndices(offset, velocity, total, target)) {
       const wallpaper = list[index];
       if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, false));
     }

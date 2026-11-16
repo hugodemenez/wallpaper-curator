@@ -189,28 +189,68 @@ export function seamClips(slots: SeamSlot[], cardH: number): SeamClip[] {
   return clips;
 }
 
-function signedWindow(velocity: number) {
+type PrefetchWindow = { base: number; perItem: number; cap: number };
+
+/** 500px thumbnails: ±7 items plus up to 4 more in the flick direction. */
+const THUMB_WINDOW: PrefetchWindow = { base: 7, perItem: 1 / 3, cap: 4 };
+/**
+ * Tiny stand-ins (~4KB): wider, and stretched with speed so they stay about
+ * 0.8s ahead of the wheel even at the fastest flick.
+ */
+const TINY_WINDOW: PrefetchWindow = { base: 10, perItem: 0.8, cap: 32 };
+/** Longest glide path we warm ahead of time. */
+const MAX_PATH = 24;
+
+function signedWindow(velocity: number, win: PrefetchWindow) {
   const dir = velocity > 0.5 ? 1 : velocity < -0.5 ? -1 : 0;
-  const extra = dir === 0 ? 0 : Math.min(4, Math.ceil(Math.abs(velocity) / 3));
-  const before = 7 + (dir < 0 ? extra : 0);
-  const after = 7 + (dir > 0 ? extra : 0);
+  const extra = dir === 0 ? 0 : Math.min(win.cap, Math.ceil(Math.abs(velocity) * win.perItem));
+  const before = win.base + (dir < 0 ? extra : 0);
+  const after = win.base + (dir > 0 ? extra : 0);
   return { before, after };
 }
 
-/** Wallpaper indexes to warm, wrapping past either end. */
-export function prefetchIndices(offset: number, velocity: number, count: number) {
+function collect(
+  offset: number,
+  velocity: number,
+  count: number,
+  win: PrefetchWindow,
+  target?: number,
+) {
   if (count <= 0) return [];
-  const { before, after } = signedWindow(velocity);
+  const { before, after } = signedWindow(velocity, win);
   const origin = Math.round(offset);
   const seen = new Set<number>();
   const indexes: number[] = [];
-  for (let step = -before; step <= after; step += 1) {
+  const add = (step: number) => {
     const index = wrapIndex(origin + step, count);
-    if (seen.has(index)) continue;
+    if (seen.has(index)) return;
     seen.add(index);
     indexes.push(index);
+  };
+  // Nearest first: requests start in this order, so the next card wins.
+  for (let ring = 0; ring <= Math.max(before, after); ring += 1) {
+    if (ring <= after) add(ring);
+    if (ring > 0 && ring <= before) add(-ring);
+  }
+  // Every painting between here and where the glide will settle (plus two),
+  // so the cards the wheel slows down on are already decoding.
+  if (target !== undefined && Number.isFinite(target)) {
+    const goal = Math.round(target) - origin;
+    const dir = Math.sign(goal);
+    const reach = Math.min(MAX_PATH, Math.abs(goal) + 2);
+    for (let step = 1; dir !== 0 && step <= reach; step += 1) add(step * dir);
   }
   return indexes;
+}
+
+/** Wallpaper indexes to warm at 500px, wrapping past either end. */
+export function prefetchIndices(offset: number, velocity: number, count: number, target?: number) {
+  return collect(offset, velocity, count, THUMB_WINDOW, target);
+}
+
+/** Wallpaper indexes whose tiny stand-in should be ready. */
+export function tinyPrefetchIndices(offset: number, velocity: number, count: number) {
+  return collect(offset, velocity, count, TINY_WINDOW);
 }
 
 /**

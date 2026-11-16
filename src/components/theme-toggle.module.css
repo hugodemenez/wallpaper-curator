@@ -78,6 +78,18 @@
   }
 }
 
+.toggle[data-show-label="true"] .label {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .toggle:hover {
     border-color: var(--wood);

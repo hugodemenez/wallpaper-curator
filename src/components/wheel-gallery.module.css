@@ -1,0 +1,165 @@
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.arc {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  cursor: grab;
+}
+
+.stage[data-dragging="true"] .arc {
+  cursor: grabbing;
+}
+
+.item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-w, 280px);
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item:hover,
+.item:active {
+  border: 0;
+  background: transparent;
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+}
+
+/*
+ * Seam clipping. Two nested overflow boxes slide against each other (and the
+ * content slides back) so a card can be cut at a moving line with transforms
+ * only; no clip-path or layout changes per frame.
+ */
+.clip,
+.layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  will-change: transform;
+}
+
+.clip {
+  overflow: hidden;
+}
+
+/*
+ * Pre-blurred copies stacked over the sharp image. The blur radius never
+ * changes, so it is rasterised once; only opacity animates.
+ */
+.item img.soft3,
+.item img.soft6 {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.item img.soft3 {
+  filter: blur(3px);
+}
+
+.item img.soft6 {
+  filter: blur(6px);
+}
+
+.caption {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 16px max(8px, env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+/* Always two lines tall, whatever the title length, so nothing below moves. */
+.titleBox {
+  --title-lh: 1.35;
+  position: relative;
+  width: min(36rem, 100%);
+  height: calc(2em * var(--title-lh));
+  font-size: 1rem;
+  flex: none;
+  contain: layout paint style;
+}
+
+.title {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1rem;
+  line-height: var(--title-lh);
+  color: var(--fg);
+  /* Opacity is driven from the wheel offset in WheelGallery's paint(). */
+  will-change: opacity;
+}
+
+.title[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+/* Before the first paint() writes inline opacity (e.g. server HTML), show only the first title. */
+.title:not(:first-child) {
+  opacity: 0;
+}
+
+.title > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  flex: none;
+}

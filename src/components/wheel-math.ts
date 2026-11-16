@@ -44,6 +44,7 @@ export function wheelMetrics(stageWidth: number, stageHeight: number) {
   const radius = y1 / Math.sin(stepRad);
   return {
     cardW,
+    cardH,
     radius,
     /** Pixels of drag that move the wheel by one painting, matched to the arc. */
     pxPerItem: y1,
@@ -108,12 +109,84 @@ export function itemZIndex(index: number, offset: number, count: number) {
   return 1000 - Math.round(Math.abs(circularDelta(index, offset, count))) * 10;
 }
 
+/** Perspective distance baked into every card's own transform. */
+export const WHEEL_PERSPECTIVE = 860;
+
 /**
  * Each card carries its own perspective. They are flat layers, not one shared
  * 3D scene, so Safari cannot depth-test a neighbour through the centre image.
  */
 export function itemTransform(pose: ItemPose) {
-  return `translate(-50%, -50%) perspective(860px) translate3d(0px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateX(${pose.rotateX.toFixed(3)}deg) scale(${pose.scale.toFixed(4)})`;
+  return `translate(-50%, -50%) perspective(${WHEEL_PERSPECTIVE}px) translate3d(0px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateX(${pose.rotateX.toFixed(3)}deg) scale(${pose.scale.toFixed(4)})`;
+}
+
+/**
+ * Screen y (relative to the wheel centre) of a horizontal line at `localY`
+ * on a card, measured from the card's centre in unscaled CSS px. Mirrors
+ * `itemTransform`: scale, rotateX, translate3d, then perspective.
+ */
+export function projectCardY(pose: ItemPose, localY: number) {
+  const r = (pose.rotateX * Math.PI) / 180;
+  const ly = localY * pose.scale;
+  const y = pose.y + ly * Math.cos(r);
+  const z = pose.z + ly * Math.sin(r);
+  return (y * WHEEL_PERSPECTIVE) / (WHEEL_PERSPECTIVE - z);
+}
+
+/** Inverse of `projectCardY`: which card-local line lands on `screenY`. */
+export function unprojectCardY(pose: ItemPose, screenY: number) {
+  const r = (pose.rotateX * Math.PI) / 180;
+  const p = WHEEL_PERSPECTIVE;
+  const den = pose.scale * (p * Math.cos(r) + screenY * Math.sin(r));
+  if (Math.abs(den) < 1e-3) return Number.NaN;
+  return (screenY * (p - pose.z) - p * pose.y) / den;
+}
+
+/** Back card tucks this far (screen px) under the front one, so no hairline gap shows. */
+const SEAM_TUCK = 1;
+
+export type SeamSlot = { delta: number; pose: ItemPose; z: number };
+export type SeamClip = { top: number; bottom: number };
+
+/**
+ * Where neighbouring cards meet. Cards overlap, so a plain z-index swap at the
+ * halfway point flips which painting covers the shared band in one frame.
+ * Instead each pair gets a seam that slides continuously from the upper
+ * card's bottom edge (upper card centred) to the lower card's top edge (lower
+ * card centred). Both cards are clipped at that seam, so they never overlap
+ * and the z-index flip has nothing left to reveal.
+ *
+ * `slots` must be sorted by delta. Returns local clip insets (CSS px, from the
+ * top and bottom edges of an unscaled card of height `cardH`) per slot.
+ */
+export function seamClips(slots: SeamSlot[], cardH: number): SeamClip[] {
+  const half = cardH / 2;
+  const clips = slots.map(() => ({ top: 0, bottom: 0 }));
+  for (let i = 0; i + 1 < slots.length; i += 1) {
+    const a = slots[i];
+    const b = slots[i + 1];
+    if (Math.abs(b.delta - a.delta - 1) > 1e-6) continue;
+    const mid = (a.delta + b.delta) / 2;
+    // 0 while the upper card is nearer the centre, 1 once the lower card is.
+    const w = Math.min(1, Math.max(0, 0.5 - mid));
+    const aBottom = projectCardY(a.pose, half);
+    const bTop = projectCardY(b.pose, -half);
+    const seam = aBottom + (bTop - aBottom) * w;
+    const aFront = a.z >= b.z;
+    const aEdge = unprojectCardY(a.pose, aFront ? seam : seam + SEAM_TUCK);
+    const bEdge = unprojectCardY(b.pose, aFront ? seam - SEAM_TUCK : seam);
+    if (Number.isFinite(aEdge)) clips[i].bottom = Math.max(0, half - aEdge);
+    if (Number.isFinite(bEdge)) clips[i + 1].top = Math.max(0, bEdge + half);
+  }
+  for (const clip of clips) {
+    const total = clip.top + clip.bottom;
+    if (total > cardH) {
+      const k = cardH / total;
+      clip.top *= k;
+      clip.bottom *= k;
+    }
+  }
+  return clips;
 }
 
 function signedWindow(velocity: number) {
@@ -140,10 +213,26 @@ export function prefetchIndices(offset: number, velocity: number, count: number)
   return indexes;
 }
 
+/**
+ * The two paintings the wheel is between, and how far it is from the first
+ * to the second (0..1). Drives the title crossfade.
+ */
+export function titleBlend(offset: number, count: number, reduced = false) {
+  const base = Math.floor(offset);
+  const frac = offset - base;
+  const lo = wrapIndex(base, count);
+  const hi = wrapIndex(base + 1, count);
+  // Fade across the middle of the step, where the image seam crosses centre.
+  const x = Math.min(1, Math.max(0, (frac - 0.3) / 0.4));
+  const mix = reduced ? (frac >= 0.5 ? 1 : 0) : x * x * (3 - 2 * x);
+  return { lo, hi, mix };
+}
+
 export function visibleSlots(offset: number, count: number) {
-  if (count <= 0) return { nearest: 0, slots: [] as number[] };
+  if (count <= 0) return { nearest: 0, lo: 0, slots: [] as number[] };
   const origin = Math.round(offset);
   const nearest = wrapIndex(origin, count);
+  const lo = wrapIndex(Math.floor(offset), count);
   const seen = new Set<number>();
   const slots: number[] = [];
   for (let step = -WHEEL_REACH; step <= WHEEL_REACH; step += 1) {
@@ -152,7 +241,7 @@ export function visibleSlots(offset: number, count: number) {
     seen.add(index);
     slots.push(index);
   }
-  return { nearest, slots };
+  return { nearest, lo, slots };
 }
 
 /** Natural frequency of the snap spring (rad/s). ~0.45s to settle. */

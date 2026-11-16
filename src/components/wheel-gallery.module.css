@@ -65,6 +65,23 @@
 }
 
 /*
+ * Seam clipping. Two nested overflow boxes slide against each other (and the
+ * content slides back) so a card can be cut at a moving line with transforms
+ * only; no clip-path or layout changes per frame.
+ */
+.clip,
+.layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  will-change: transform;
+}
+
+.clip {
+  overflow: hidden;
+}
+
+/*
  * Pre-blurred copies stacked over the sharp image. The blur radius never
  * changes, so it is rasterised once; only opacity animates.
  */
@@ -117,6 +134,17 @@
   font-size: 1rem;
   line-height: var(--title-lh);
   color: var(--fg);
+  /* Opacity is driven from the wheel offset in WheelGallery's paint(). */
+  will-change: opacity;
+}
+
+.title[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+/* Before the first paint() writes inline opacity (e.g. server HTML), show only the first title. */
+.title:not(:first-child) {
+  opacity: 0;
 }
 
 .title > span {
@@ -128,44 +156,6 @@
   text-overflow: ellipsis;
   text-wrap: balance;
   overflow-wrap: anywhere;
-}
-
-.titleIn {
-  animation: title-in 220ms ease-out both;
-}
-
-.titleOut {
-  animation: title-out 160ms ease-in both;
-  pointer-events: none;
-}
-
-@keyframes title-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes title-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .titleIn,
-  .titleOut {
-    animation: none;
-  }
-
-  .titleOut {
-    opacity: 0;
-  }
 }
 
 .actions {

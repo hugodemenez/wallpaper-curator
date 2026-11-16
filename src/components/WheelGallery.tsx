@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardActions } from "@/components/CardActions";
 import { type Wallpaper } from "@/lib/wallpapers";
 import {
@@ -12,7 +12,10 @@ import {
   prefetchIndices,
   planMotion,
   project,
+  seamClips,
+  type SeamSlot,
   stepMotion,
+  titleBlend,
   type Motion,
   visibleSlots,
   wrapIndex,
@@ -21,13 +24,18 @@ import {
 import { prefetchUrl, showDecoded, thumbFor } from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
-type Frame = { nearest: number; slots: number[] };
+type Frame = { nearest: number; lo: number; slots: number[] };
 
 /** DOM handles for one card plus the last values written, so we only touch what changed. */
 type Card = {
   node: HTMLButtonElement;
   sharp: HTMLImageElement;
   soft: [HTMLImageElement, HTMLImageElement];
+  /** Counter-translated overflow wrappers that clip the card at its seams. */
+  clipTop: HTMLElement;
+  clipBottom: HTMLElement;
+  layer: HTMLElement;
+  clip: [number, number];
   z: number;
   live: boolean;
   softOn: [boolean, boolean];
@@ -38,6 +46,25 @@ const MAX_VELOCITY = 40;
 
 function setLayerVisible(el: HTMLElement, on: boolean) {
   el.style.visibility = on ? "visible" : "hidden";
+}
+
+function ty(px: number) {
+  return `translate3d(0px, ${px.toFixed(2)}px, 0px)`;
+}
+
+/**
+ * Clip `top` / `bottom` px off a card using only transforms: the outer box
+ * slides down by `top` (hiding the top), the middle one slides up by
+ * `top + bottom` (hiding the bottom), and the content slides back by `bottom`
+ * so the painting itself never moves.
+ */
+function writeClip(card: Card, top: number, bottom: number) {
+  const [t0, b0] = card.clip;
+  if (Math.abs(top - t0) < 0.01 && Math.abs(bottom - b0) < 0.01) return;
+  card.clip = [top, bottom];
+  card.clipTop.style.transform = ty(top);
+  card.clipBottom.style.transform = ty(-top - bottom);
+  card.layer.style.transform = ty(bottom);
 }
 
 export function WheelGallery({
@@ -59,7 +86,9 @@ export function WheelGallery({
   const targetRef = useRef(0);
   const modeRef = useRef<"idle" | "drag" | "glide">("idle");
   const reducedRef = useRef(false);
-  const metricsRef = useRef({ cardW: 280, radius: 360, pxPerItem: 140 });
+  const metricsRef = useRef({ cardW: 280, cardH: 157.5, radius: 360, pxPerItem: 140 });
+  /** Title layers by wallpaper id; their opacity is written in `paint`. */
+  const titleRefs = useRef<Map<string, HTMLElement>>(new Map());
   const movedRef = useRef(false);
   const publishRef = useRef<() => void>(() => {});
   const rafRef = useRef(0);
@@ -78,20 +107,37 @@ export function WheelGallery({
    * when they actually change.
    */
   const paint = useCallback(() => {
-    const { radius } = metricsRef.current;
+    const { radius, cardH } = metricsRef.current;
     const offset = offsetRef.current;
     const velocity = velocityRef.current;
     const reduced = reducedRef.current;
     const total = countRef.current;
     const list = wallpapersRef.current;
     const fast = Math.abs(velocity) > 2.4;
+
+    const placed: (SeamSlot & { card: Card })[] = [];
     for (const [index, card] of cardsRef.current) {
-      const { node, sharp, soft } = card;
       const pose = itemPose(index, offset, radius, total, reduced);
+      placed.push({
+        card,
+        pose,
+        delta: circularDelta(index, offset, total),
+        z: itemZIndex(index, offset, total),
+      });
+    }
+    placed.sort((a, b) => a.delta - b.delta);
+    const clips = seamClips(placed, cardH);
+
+    for (let slot = 0; slot < placed.length; slot += 1) {
+      const { card, pose, z } = placed[slot];
+      const { node, sharp, soft } = card;
+      const index = Number(node.dataset.wheelItem);
       const wallpaper = list[index];
       node.style.transform = itemTransform(pose);
+      writeClip(card, clips[slot].top, clips[slot].bottom);
 
-      const z = itemZIndex(index, offset, total);
+      // Still nearest-on-top, but the seams mean adjacent cards no longer
+      // overlap, so this flip at the halfway point is invisible.
       if (z !== card.z) {
         card.z = z;
         node.style.zIndex = String(z);
@@ -111,7 +157,7 @@ export function WheelGallery({
 
       let opacity = pose.opacity;
       if (wallpaper) {
-        const dist = Math.abs(circularDelta(index, offset, total));
+        const dist = Math.abs(placed[slot].delta);
         const hi = thumbFor(wallpaper.url, true);
         const lo = thumbFor(wallpaper.url, false);
         const keepHi = sharp.dataset.src === hi && dist < 0.85;
@@ -141,6 +187,15 @@ export function WheelGallery({
         setLayerVisible(node, visible);
       }
     }
+    if (total > 0) {
+      const { lo, hi, mix } = titleBlend(offset, total, reduced);
+      const titles = titleRefs.current;
+      const loEl = list[lo] && titles.get(list[lo].id);
+      const hiEl = list[hi] && titles.get(list[hi].id);
+      if (loEl && loEl !== hiEl) loEl.style.opacity = (1 - mix).toFixed(3);
+      if (hiEl) hiEl.style.opacity = loEl === hiEl ? "1" : mix.toFixed(3);
+    }
+
     for (const index of prefetchIndices(offset, velocity, total)) {
       const wallpaper = list[index];
       if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, false));
@@ -168,6 +223,7 @@ export function WheelGallery({
     const next = visibleSlots(offsetRef.current, total);
     setFrame((prev) =>
       prev.nearest === next.nearest &&
+      prev.lo === next.lo &&
       prev.slots.length === next.slots.length &&
       prev.slots.every((slot, i) => slot === next.slots[i])
         ? prev
@@ -272,7 +328,7 @@ export function WheelGallery({
   // Newly mounted cards get their pose before the browser paints them.
   useLayoutEffect(() => {
     paint();
-  }, [paint, frame.nearest, frame.slots]);
+  }, [paint, frame.nearest, frame.lo, frame.slots]);
 
   // One layout read on mount; afterwards sizes arrive via ResizeObserver.
   useLayoutEffect(() => {
@@ -445,6 +501,9 @@ export function WheelGallery({
 
   const current = wallpapers[frame.nearest];
   const indexes = frame.slots;
+  // The two titles the wheel is between; `paint` crossfades them with the seam.
+  const titleHi = wrapIndex(frame.lo + 1, count);
+  const titleIds = titleHi === frame.lo ? [frame.lo] : [frame.lo, titleHi];
 
   return (
     <div
@@ -477,10 +536,16 @@ export function WheelGallery({
                 let card = cardStateRef.current.get(node);
                 if (!card) {
                   const imgs = node.querySelectorAll("img");
+                  const clipTop = node.firstElementChild as HTMLElement;
+                  const clipBottom = clipTop.firstElementChild as HTMLElement;
                   card = {
                     node,
                     sharp: imgs[0],
                     soft: [imgs[1], imgs[2]],
+                    clipTop,
+                    clipBottom,
+                    layer: clipBottom.firstElementChild as HTMLElement,
+                    clip: [0, 0],
                     z: Number.NaN,
                     live: true,
                     softOn: [true, true],
@@ -498,20 +563,47 @@ export function WheelGallery({
               }
               onClick={() => onItemClick(index)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" draggable={false} decoding="async" />
-              {/* Pre-blurred copies; their opacity crossfades with distance. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className={styles.soft3} draggable={false} decoding="async" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className={styles.soft6} draggable={false} decoding="async" />
+              {/* Seam clip: transform-only wrappers, see writeClip. */}
+              <span className={styles.clip}>
+                <span className={styles.clip}>
+                  <span className={styles.layer}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" draggable={false} decoding="async" />
+                    {/* Pre-blurred copies; their opacity crossfades with distance. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className={styles.soft3} draggable={false} decoding="async" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className={styles.soft6} draggable={false} decoding="async" />
+                  </span>
+                </span>
+              </span>
             </button>
           );
         })}
       </div>
       {current && (
         <div className={styles.caption}>
-          <CaptionTitle id={current.id} text={`${current.artist} — ${current.name}`} />
+          <div className={styles.titleBox} aria-live="polite">
+            {titleIds.map((index) => {
+              const wallpaper = wallpapers[index];
+              const text = `${wallpaper.artist} — ${wallpaper.name}`;
+              const shown = index === frame.nearest;
+              return (
+                <p
+                  key={wallpaper.id}
+                  ref={(node) => {
+                    if (node) titleRefs.current.set(wallpaper.id, node);
+                    else titleRefs.current.delete(wallpaper.id);
+                  }}
+                  className={styles.title}
+                  title={shown ? text : undefined}
+                  aria-hidden={shown ? undefined : "true"}
+                >
+                  <span>{text}</span>
+                </p>
+              );
+            })}
+          </div>
           <div className={styles.actions}>
             <CardActions
               imageUrl={current.url}
@@ -523,35 +615,3 @@ export function WheelGallery({
     </div>
   );
 }
-
-type TitleLayer = { id: string; text: string };
-
-/**
- * Fixed two-line title block. The new title fades in over the old one, both
- * absolutely positioned, so the Download button below never moves.
- */
-const CaptionTitle = memo(function CaptionTitle({ id, text }: TitleLayer) {
-  const [layers, setLayers] = useState<{ current: TitleLayer; previous: TitleLayer | null }>(
-    () => ({ current: { id, text }, previous: null }),
-  );
-  if (layers.current.id !== id) {
-    setLayers({ current: { id, text }, previous: layers.current });
-  }
-  const { current, previous } = layers;
-  return (
-    <div className={styles.titleBox} aria-live="polite">
-      {previous && (
-        <p key={`out-${previous.id}`} className={`${styles.title} ${styles.titleOut}`} aria-hidden="true">
-          <span>{previous.text}</span>
-        </p>
-      )}
-      <p
-        key={`in-${current.id}`}
-        className={`${styles.title} ${previous ? styles.titleIn : ""}`}
-        title={current.text}
-      >
-        <span>{current.text}</span>
-      </p>
-    </div>
-  );
-});

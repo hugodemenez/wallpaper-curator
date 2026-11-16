@@ -1,8 +1,9 @@
 .anchor {
   position: relative;
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .anchor[data-open="true"] {
@@ -38,6 +39,17 @@
 
 .trigger[aria-expanded="true"] {
   border-color: var(--wood);
+}
+
+.triggerLabel {
+  display: inline-flex;
+  flex-direction: row;
+  width: auto;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  gap: 8px;
+  font-size: 1rem;
 }
 
 .panel {

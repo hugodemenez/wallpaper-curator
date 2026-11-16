@@ -4,21 +4,21 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { CardActions } from "@/components/CardActions";
 import { type Wallpaper } from "@/lib/wallpapers";
 import {
-  clamp,
+  circularDelta,
   itemPose,
   itemTransform,
   itemZIndex,
-  prefetchRange,
+  prefetchIndices,
   project,
-  rubberOffset,
   stepSpring,
-  visibleRange,
+  visibleSlots,
+  wrapIndex,
   wheelMetrics,
 } from "@/components/wheel-math";
 import { prefetchUrl, showDecoded, thumbFor } from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
-type Frame = { nearest: number; start: number; end: number };
+type Frame = { nearest: number; slots: number[] };
 
 export function WheelGallery({
   wallpapers,
@@ -44,7 +44,7 @@ export function WheelGallery({
   const countRef = useRef(count);
   const wallpapersRef = useRef(wallpapers);
 
-  const [frame, setFrame] = useState<Frame>(() => visibleRange(0, count));
+  const [frame, setFrame] = useState<Frame>(() => visibleSlots(0, count));
   const [dragging, setDragging] = useState(false);
 
   const paint = useCallback(() => {
@@ -56,11 +56,11 @@ export function WheelGallery({
     if (stage) stage.style.setProperty("--card-w", `${cardW}px`);
     const fast = Math.abs(velocity) > 2.4;
     for (const [index, node] of nodesRef.current) {
-      const pose = itemPose(index, offset, radius, reduced);
+      const pose = itemPose(index, offset, radius, countRef.current, reduced);
       const wallpaper = wallpapersRef.current[index];
       node.style.transform = itemTransform(pose);
       node.style.opacity = String(pose.opacity);
-      node.style.zIndex = String(itemZIndex(index, offset));
+      node.style.zIndex = String(itemZIndex(index, offset, countRef.current));
       node.style.filter = pose.blur < 0.5 ? "none" : `blur(${pose.blur.toFixed(2)}px)`;
       node.style.pointerEvents = pose.opacity < 0.2 ? "none" : "auto";
       if (pose.opacity < 0.2) node.setAttribute("aria-hidden", "true");
@@ -82,28 +82,37 @@ export function WheelGallery({
         }
       }
     }
-    const span = prefetchRange(offset, velocity, countRef.current);
     const list = wallpapersRef.current;
-    for (let index = span.start; index <= span.end; index += 1) {
+    const total = countRef.current;
+    for (const index of prefetchIndices(offset, velocity, total)) {
       const wallpaper = list[index];
-      if (!wallpaper) continue;
-      prefetchUrl(thumbFor(wallpaper.url, false));
+      if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, false));
     }
-    if (!fast) {
-      const nearest = Math.round(offset);
-      for (const index of [nearest - 1, nearest, nearest + 1]) {
-        const wallpaper = list[index];
+    if (!fast && total > 0) {
+      const nearest = wrapIndex(Math.round(offset), total);
+      for (const step of [-1, 0, 1]) {
+        const wallpaper = list[wrapIndex(nearest + step, total)];
         if (wallpaper) prefetchUrl(thumbFor(wallpaper.url, true));
       }
     }
   }, []);
 
   const publish = useCallback(() => {
+    const total = countRef.current;
+    if (total > 1) {
+      const shift = Math.floor(offsetRef.current / total) * total;
+      if (shift !== 0) {
+        offsetRef.current -= shift;
+        rawRef.current -= shift;
+        targetRef.current -= shift;
+      }
+    }
     paint();
-    const max = Math.max(0, countRef.current - 1);
-    const next = visibleRange(clamp(offsetRef.current, -0.6, max + 0.6), countRef.current);
+    const next = visibleSlots(offsetRef.current, total);
     setFrame((prev) =>
-      prev.nearest === next.nearest && prev.start === next.start && prev.end === next.end
+      prev.nearest === next.nearest &&
+      prev.slots.length === next.slots.length &&
+      prev.slots.every((slot, i) => slot === next.slots[i])
         ? prev
         : next,
     );
@@ -128,8 +137,7 @@ export function WheelGallery({
 
   const glideTo = useCallback(
     (target: number, velocity: number) => {
-      const max = Math.max(0, countRef.current - 1);
-      targetRef.current = clamp(target, 0, max);
+      targetRef.current = countRef.current <= 1 ? 0 : target;
       velocityRef.current = velocity;
       modeRef.current = "glide";
       stopGlide();
@@ -159,10 +167,10 @@ export function WheelGallery({
 
   const nudge = useCallback(
     (dir: number) => {
-      const max = Math.max(0, countRef.current - 1);
+      if (countRef.current <= 1) return;
       const base =
         modeRef.current === "glide" ? targetRef.current : Math.round(offsetRef.current);
-      glideTo(clamp(base + dir, 0, max), 0);
+      glideTo(base + dir, 0);
     },
     [glideTo],
   );
@@ -185,7 +193,7 @@ export function WheelGallery({
   useLayoutEffect(() => {
     measure();
     paint();
-  }, [measure, paint, frame.start, frame.end]);
+  }, [measure, paint, frame.nearest, frame.slots]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -208,14 +216,12 @@ export function WheelGallery({
       let dy = event.deltaY;
       if (event.deltaMode === 1) dy *= 16;
       if (event.deltaMode === 2) dy *= stage.getBoundingClientRect().height;
-      const max = Math.max(0, countRef.current - 1);
       rawRef.current += dy / metricsRef.current.pxPerItem;
-      offsetRef.current = rubberOffset(rawRef.current, max);
+      offsetRef.current = rawRef.current;
       publish();
       window.clearTimeout(snapTimerRef.current);
       snapTimerRef.current = window.setTimeout(() => {
-        const snapped = clamp(Math.round(rawRef.current), 0, max);
-        glideTo(snapped, 0);
+        glideTo(Math.round(rawRef.current), 0);
       }, 90);
     };
 
@@ -294,9 +300,8 @@ export function WheelGallery({
     drag.samples.push({ y: event.clientY, t: now });
     const recent = now - 80;
     while (drag.samples.length > 2 && drag.samples[0].t < recent) drag.samples.shift();
-    const max = Math.max(0, countRef.current - 1);
     rawRef.current += -dy / metricsRef.current.pxPerItem;
-    offsetRef.current = rubberOffset(rawRef.current, max);
+    offsetRef.current = rawRef.current;
     publish();
   }
 
@@ -320,10 +325,9 @@ export function WheelGallery({
     const dt = Math.max(16, now - sample.t);
     const vPx = ((event.clientY - sample.y) / dt) * 1000;
     const px = metricsRef.current.pxPerItem;
-    const max = Math.max(0, countRef.current - 1);
     const projected = rawRef.current + -project(vPx) / px;
     const visualVelocity = -vPx / px;
-    glideTo(Math.round(clamp(projected, -0.5, max + 0.5)), visualVelocity);
+    glideTo(Math.round(projected), visualVelocity);
     window.setTimeout(() => {
       movedRef.current = false;
     }, 0);
@@ -331,14 +335,14 @@ export function WheelGallery({
 
   function onItemClick(index: number) {
     if (movedRef.current) return;
-    const current = clamp(Math.round(offsetRef.current), 0, Math.max(0, count - 1));
-    if (index === current) onOpen(wallpapers[index].id);
-    else glideTo(index, 0);
+    const total = countRef.current;
+    const here = wrapIndex(Math.round(offsetRef.current), total);
+    if (index === here) onOpen(wallpapers[index].id);
+    else glideTo(offsetRef.current + circularDelta(index, offsetRef.current, total), 0);
   }
 
   const current = wallpapers[frame.nearest];
-  const indexes: number[] = [];
-  for (let index = frame.start; index <= frame.end; index += 1) indexes.push(index);
+  const indexes = frame.slots;
 
   return (
     <div

@@ -33,7 +33,7 @@ export function CardActions({
       <button
         ref={triggerRef}
         type="button"
-        className={styles.trigger}
+        className={`${styles.trigger} ${styles.triggerLabel}`}
         aria-label="Download"
         title="Download"
         aria-haspopup="dialog"
@@ -42,6 +42,7 @@ export function CardActions({
         onClick={toggle}
       >
         <DownloadIcon />
+        <span>Download</span>
       </button>
       <div
         ref={menuRef}

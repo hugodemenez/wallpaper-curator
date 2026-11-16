@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { CardActions } from "@/components/CardActions";
-import { GallerySettings, type GalleryLayout } from "@/components/GallerySettings";
 import { ViewerStage } from "@/components/ViewerStage";
 import { WheelGallery } from "@/components/WheelGallery";
 import { WallButton } from "@/components/WallButton";
@@ -11,7 +9,6 @@ import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 import styles from "./gallery.module.css";
 
 export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
-  const [layout, setLayout] = useState<GalleryLayout>("wheel");
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const ordered = useMemo(() => {
@@ -28,10 +25,9 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   const closeViewer = useCallback(() => setViewerIndex(null), []);
 
   useEffect(() => {
-    if (layout !== "wheel") return;
     document.body.classList.add("gallery-wheel");
     return () => document.body.classList.remove("gallery-wheel");
-  }, [layout]);
+  }, []);
 
   useEffect(() => {
     if (viewerIndex == null) return;
@@ -57,78 +53,26 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
   const viewing = viewerIndex != null ? ordered[viewerIndex] : null;
 
   return (
-    <div className={layout === "wheel" ? `${styles.shell} ${styles.shellWheel}` : styles.shell}>
+    <div className={`${styles.shell} ${styles.shellWheel}`}>
       <div className={styles.chrome}>
         <header className={styles.header}>
-          <div className={styles.headerTop}>
-            <div className={styles.crumbs}>
-              <Link href="/">Wallpaper Curator</Link>
-              <span className={styles.sep} aria-hidden="true">
-                /
-              </span>
-              <span className={styles.here}>Gallery</span>
-            </div>
-            <GallerySettings layout={layout} onLayout={setLayout} />
+          <div className={styles.crumbs}>
+            <Link href="/">Wallpaper Curator</Link>
+            <span className={styles.sep} aria-hidden="true">
+              /
+            </span>
+            <span className={styles.here}>Gallery</span>
           </div>
-          <p className={`${styles.summary} dim`} id="gallery-count">
-            {ordered.length} wallpaper{ordered.length === 1 ? "" : "s"}
-          </p>
         </header>
       </div>
 
-      <main id="main" aria-labelledby="gallery-count">
+      <main id="main" aria-label="Gallery">
       {ordered.length === 0 ? (
         <div className={styles.empty} role="status">
           No wallpapers yet.
         </div>
-      ) : layout === "wheel" ? (
-        <WheelGallery wallpapers={ordered} onOpen={openViewer} />
       ) : (
-        <div
-          className={styles.grid}
-          style={{ ["--cols" as string]: String(layout) }}
-        >
-          {ordered.map((w) => (
-            <article
-              key={w.id}
-              className={styles.card}
-              data-gallery-card=""
-              onClick={() => openViewer(w.id)}
-              onKeyDown={(e) => {
-                if (e.target !== e.currentTarget) return;
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  openViewer(w.id);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Open ${w.artist} — ${w.name}`}
-            >
-              <div className={styles.thumb}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={thumbUrl(
-                    w.url,
-                    layout === 1 ? 960 : layout === 2 ? 500 : 330,
-                  )}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <div className={styles.meta}>
-                <div className={styles.name}>
-                  {w.artist} — {w.name}
-                </div>
-                <CardActions
-                  imageUrl={w.url}
-                  title={`${w.artist} — ${w.name}`}
-                />
-              </div>
-            </article>
-          ))}
-        </div>
+        <WheelGallery wallpapers={ordered} onOpen={openViewer} />
       )}
       </main>
 
@@ -142,9 +86,6 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
           <div className={styles.bar}>
             <span className={styles.title} id="viewer-title">
               {viewing.artist} — {viewing.name}
-            </span>
-            <span className={`${styles.count} dim`}>
-              {viewerIndex + 1} / {ordered.length}
             </span>
             <WallButton
               imageUrl={viewing.url}

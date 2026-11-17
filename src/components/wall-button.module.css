@@ -118,8 +118,10 @@
   line-height: 1.4;
 }
 
-html[data-theme="dark"] .tipError {
-  color: oklch(0.78 0.1 25);
+@media (prefers-color-scheme: dark) {
+  .tipError {
+    color: oklch(0.78 0.1 25);
+  }
 }
 
 .tipActions {

@@ -1,25 +1,25 @@
-# Wallpaper Curator
+# Rotapicta
 
-A Vercel-deployable gallery of curated **public-domain** wallpapers — browse the collection, download, or set via Raycast / iOS share.
+*Rota picta* — Latin for “painted wheel”. A wheel of curated **public-domain** paintings to turn, stop on, and keep as a phone or desktop wallpaper (download, Raycast, or iOS share).
 
-**Live:** [wallpaper-curator.vercel.app](https://wallpaper-curator.vercel.app)
+**Live:** [rotapicta.com](https://rotapicta.com) (the old [wallpaper-curator.vercel.app](https://wallpaper-curator.vercel.app) still works)
 
 - **Landing:** `/`
-- **Gallery:** `/gallery`
+- **Gallery (the wheel):** `/gallery` — opens with a spin onto a random painting; `/gallery?p=<id>` lands on one
 - **Catalog:** `data/wallpapers.yaml`
 - **MCP (agents):** `/api/mcp`
-- **Agent guide:** [`/agents.md`](https://wallpaper-curator.vercel.app/agents.md) (`AGENTS.md`)
+- **Agent guide:** [`/agents.md`](https://rotapicta.com/agents.md) (`AGENTS.md`)
 - **Raycast companion:** `raycast-extension/`
 
 ## Screenshots
 
-Landing — full-bleed hero and gallery tease:
+Landing — the painted wheel, museum labels, one way in:
 
-![Wallpaper Curator landing page](docs/screenshots/landing-desktop.jpg)
+![Rotapicta landing page](docs/screenshots/landing-desktop.jpg)
 
-Gallery — search, sort, column density, wall / download:
+Gallery — the vertical wheel; Download offers “Set as wallpaper” or the original:
 
-![Wallpaper Curator gallery](docs/screenshots/gallery-desktop.jpg)
+![Rotapicta gallery](docs/screenshots/gallery-desktop.jpg)
 
 ## Local development
 
@@ -34,7 +34,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Agents can discover and search the library over Streamable HTTP:
 
-`https://wallpaper-curator.vercel.app/api/mcp`
+`https://rotapicta.com/api/mcp`
 
 **Tools**
 
@@ -51,8 +51,8 @@ Agents can discover and search the library over Streamable HTTP:
 ```json
 {
   "mcpServers": {
-    "wallpaper-curator": {
-      "url": "https://wallpaper-curator.vercel.app/api/mcp"
+    "rotapicta": {
+      "url": "https://rotapicta.com/api/mcp"
     }
   }
 }
@@ -65,12 +65,12 @@ Locally while developing: `"url": "http://localhost:3000/api/mcp"`.
 ```json
 {
   "mcpServers": {
-    "wallpaper-curator": {
+    "rotapicta": {
       "command": "npx",
       "args": [
         "-y",
         "mcp-remote",
-        "https://wallpaper-curator.vercel.app/api/mcp"
+        "https://rotapicta.com/api/mcp"
       ]
     }
   }
@@ -108,7 +108,7 @@ npm run dev          # local install into Raycast — test Browse + wall deeplin
 npx ray submit       # publish to Raycast Store (author: hugodemenez)
 ```
 
-- **Browse Wallpapers** → loads `GET https://wallpaper-curator.vercel.app/api/wallpapers`
+- **Browse Wallpapers** → loads `GET https://rotapicta.com/api/wallpapers`
 - **Set Wallpaper from URL** → used by gallery `wall` deeplinks
 - Downloads the painting’s own source URL, then AppleScript sets the desktop
 
@@ -121,9 +121,9 @@ See [`raycast-extension/README.md`](raycast-extension/README.md).
 ## Catalog API
 
 ```bash
-curl https://wallpaper-curator.vercel.app/api/wallpapers
-curl 'https://wallpaper-curator.vercel.app/api/wallpapers?q=sea'
-curl 'https://wallpaper-curator.vercel.app/api/wallpapers?id=pissarro-garden-full-sunlight'
+curl https://rotapicta.com/api/wallpapers
+curl 'https://rotapicta.com/api/wallpapers?q=sea'
+curl 'https://rotapicta.com/api/wallpapers?id=pissarro-garden-full-sunlight'
 ```
 
 ## Deploy (Vercel)

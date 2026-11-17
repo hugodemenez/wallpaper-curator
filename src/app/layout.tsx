@@ -1,57 +1,69 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, Fraunces } from "next/font/google";
-import { ThemeScript } from "@/components/ThemeScript";
+import { Cinzel, Cormorant_Garamond, Figtree } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_SHORT, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+/** Roman inscription capitals (after the Trajan column) for the wordmark. */
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["500", "600"],
+  display: "swap",
+});
+
+/** Museum-label serif for painting titles. */
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin", "latin-ext"],
+  weight: ["500"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
 const figtree = Figtree({
   variable: "--font-figtree",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wallpaper-curator.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Wallpaper Curator",
-    template: "%s · Wallpaper Curator",
+    default: `${SITE_NAME} — the painted wheel`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "A cozy gallery of curated public-domain paintings for your walls. Browse, download, set with Raycast.",
-  applicationName: "Wallpaper Curator",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   authors: [{ name: "hugodemenez" }],
+  alternates: { canonical: "/" },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/favicon.ico" }],
-    apple: [{ url: "/apple-touch-icon.png" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
+  appleWebApp: { title: SITE_NAME, statusBarStyle: "default" },
   openGraph: {
-    title: "Wallpaper Curator",
-    description:
-      "Curated public-domain paintings in a quiet, home-like gallery.",
+    title: `${SITE_NAME} — the painted wheel`,
+    description: SITE_SHORT,
     type: "website",
-    siteName: "Wallpaper Curator",
-    url: "https://wallpaper-curator.vercel.app",
+    siteName: SITE_NAME,
+    url: SITE_URL,
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wallpaper Curator",
-    description:
-      "Curated public-domain paintings in a quiet, home-like gallery.",
+    title: `${SITE_NAME} — the painted wheel`,
+    description: SITE_SHORT,
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ddd7cc" },
-    { media: "(prefers-color-scheme: dark)", color: "#2a221c" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f2ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#151210" },
   ],
   colorScheme: "light dark",
 };
@@ -64,11 +76,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${figtree.variable}`}
-      suppressHydrationWarning
+      className={`${cinzel.variable} ${cormorant.variable} ${figtree.variable}`}
     >
       <body>
-        <ThemeScript />
         <a className="skipLink" href="#main">
           Skip to content
         </a>

@@ -1,26 +1,48 @@
+import { readFile } from "fs/promises";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 import sharp from "sharp";
-import { OgGalleryCard } from "@/lib/og-card";
-import { latestWallpapers, wallpaperDataUrl } from "@/lib/og-wallpapers";
+import { OgCard } from "@/lib/og-card";
+import { ogWallpapers, wallpaperDataUrl } from "@/lib/og-wallpapers";
 
 export const ogAlt =
-  "Wallpaper Curator — a gallery of curated public-domain paintings";
+  "Rotapicta — the painted wheel: public-domain masterpieces as wallpapers";
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/jpeg";
 
+async function font(file: string) {
+  return readFile(join(process.cwd(), "src", "assets", "fonts", file));
+}
+
 /** Build a compact JPEG card — X often drops large PNG collages (~1MB+). */
 export async function renderOgImage(): Promise<Response> {
-  const picks = latestWallpapers(4);
-  const images = (
-    await Promise.all(picks.map((w) => wallpaperDataUrl(w, 320)))
-  ).filter((src): src is string => Boolean(src));
+  const [above, centre, below] = ogWallpapers();
+  const [images, cinzel, cormorant] = await Promise.all([
+    Promise.all([
+      above ? wallpaperDataUrl(above, 500) : null,
+      centre ? wallpaperDataUrl(centre, 960) : null,
+      below ? wallpaperDataUrl(below, 500) : null,
+    ]),
+    font("Cinzel-SemiBold.ttf"),
+    font("CormorantGaramond-MediumItalic.ttf"),
+  ]);
 
-  const png = new ImageResponse(<OgGalleryCard images={images} />, {
-    ...ogSize,
-  });
+  const png = new ImageResponse(
+    <OgCard
+      images={images}
+      caption={centre ? `${centre.artist.split(" ").pop()} · ${centre.name}` : ""}
+    />,
+    {
+      ...ogSize,
+      fonts: [
+        { name: "Cinzel", data: cinzel, weight: 600, style: "normal" },
+        { name: "Cormorant", data: cormorant, weight: 500, style: "italic" },
+      ],
+    },
+  );
   const pngBuf = Buffer.from(await png.arrayBuffer());
   const jpeg = await sharp(pngBuf)
-    .jpeg({ quality: 78, mozjpeg: true, chromaSubsampling: "4:2:0" })
+    .jpeg({ quality: 80, mozjpeg: true, chromaSubsampling: "4:2:0" })
     .toBuffer();
 
   return new Response(new Uint8Array(jpeg), {

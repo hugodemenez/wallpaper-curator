@@ -1,31 +1,33 @@
-# Wallpaper Curator — agent guide
+# Rotapicta — agent guide
 
-Curated public-domain paintings for desktop wallpapers. Humans browse the gallery; agents should use MCP (not scrape HTML).
+**Rotapicta** (Latin *rota picta*, “painted wheel”) curates public-domain paintings as phone and desktop wallpapers. Humans browse the gallery; agents should use MCP (not scrape HTML).
 
 ## Site
 
 | | URL |
 | --- | --- |
-| Home | https://wallpaper-curator.vercel.app/ |
-| Gallery | https://wallpaper-curator.vercel.app/gallery |
-| This file | https://wallpaper-curator.vercel.app/agents.md |
-| MCP (Streamable HTTP) | https://wallpaper-curator.vercel.app/api/mcp |
-| Catalog API (Raycast) | https://wallpaper-curator.vercel.app/api/wallpapers |
+| Home | https://rotapicta.com/ |
+| Gallery | https://rotapicta.com/gallery |
+| This file | https://rotapicta.com/agents.md |
+| MCP (Streamable HTTP) | https://rotapicta.com/api/mcp |
+| Catalog API (Raycast) | https://rotapicta.com/api/wallpapers |
 | Catalog source | `data/wallpapers.yaml` in this repo |
+
+The previous domain, https://wallpaper-curator.vercel.app, still serves the same site and API.
 
 ## Prefer MCP / catalog API
 
 - Agents: MCP at `/api/mcp` (tools below).
 - Raycast extension: `GET /api/wallpapers` for the browse list, then downloads each painting’s `imageUrl` from the real source and sets the desktop via AppleScript.
-- Humans: https://wallpaper-curator.vercel.app/gallery — Mac **wall** deeplinks into the Raycast **Set Wallpaper from URL** command (extension must be installed via Store or `npm run dev` in `raycast-extension/`).
+- Humans: https://rotapicta.com/gallery (deep link one painting with `/gallery?p=<id>`) — Mac **wall** deeplinks into the Raycast **Set Wallpaper from URL** command (extension must be installed via Store or `npm run dev` in `raycast-extension/`).
 
 The website does **not** embed Raycast; install the companion extension separately.
 
 ```json
 {
   "mcpServers": {
-    "wallpaper-curator": {
-      "url": "https://wallpaper-curator.vercel.app/api/mcp"
+    "rotapicta": {
+      "url": "https://rotapicta.com/api/mcp"
     }
   }
 }
@@ -34,7 +36,7 @@ The website does **not** embed Raycast; install the companion extension separate
 Stdio-only clients:
 
 ```bash
-npx -y mcp-remote https://wallpaper-curator.vercel.app/api/mcp
+npx -y mcp-remote https://rotapicta.com/api/mcp
 ```
 
 ### Tools
@@ -77,13 +79,17 @@ Local MCP while developing: `http://localhost:3000/api/mcp`
 - `src/app/api/[transport]/route.ts` — MCP server (`mcp-handler`)
 - `src/lib/mcp-catalog.ts` — search / facets / cards
 - `src/lib/wallpapers.ts` — types + Wikimedia thumb helpers
-- `src/components/LandingHero.tsx` — landing + MCP docs section (`/#mcp`)
+- `src/components/LandingHero.tsx` — landing (server component) + MCP section (`/#mcp`)
+- `src/components/WheelGallery.tsx` — the wheel, incl. the opening spin (random landing, `?p=<id>` deep link)
+- `src/lib/brand-mark.ts` — the wheel mark; `node --experimental-strip-types scripts/generate-icons.mjs` regenerates favicon / touch / manifest icons
+- `src/lib/featured.ts` — paintings used on the landing page and share image
 - `src/components/GalleryClient.tsx` — gallery UI
 - `raycast-extension/` — Raycast “set wallpaper” companion
 
 ### Conventions
 
-- Keep the landing hero sparse (brand, one headline, one support line, CTAs).
+- Keep the landing hero sparse (brand, wheel still, one headline, one support line, one CTA).
+- Light / dark follow `prefers-color-scheme` only; there is no theme toggle.
 - MCP stays public and unauthenticated; do not add secrets to the catalog path.
 - Wikimedia thumbs must use allowed widths from `WIKIMEDIA_THUMB_STEPS` in `src/lib/wallpapers.ts`.
 - OG/Twitter images are generated in `src/app/opengraph-image.tsx` / `twitter-image.tsx` (JPEG via sharp).
@@ -94,4 +100,4 @@ Local MCP while developing: `http://localhost:3000/api/mcp`
 vercel --prod
 ```
 
-Production project: `deltalytix/wallpaper-curator` → https://wallpaper-curator.vercel.app
+Production project: `deltalytix/wallpaper-curator` → https://rotapicta.com (also https://wallpaper-curator.vercel.app)

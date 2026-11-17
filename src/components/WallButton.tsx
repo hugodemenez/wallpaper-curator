@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { wallpaperDeeplink } from "@/lib/raycast";
 import {
@@ -23,6 +23,17 @@ type Props = {
 
 type Mode = "pending" | "raycast" | "share";
 
+/** Platform checks never change during a visit, so read them once. */
+let platform: { mode: Mode; shareReady: boolean } | null = null;
+function readPlatform() {
+  platform ??= {
+    mode: canUseRaycastWallpaper() ? "raycast" : "share",
+    shareReady: canNativeShareFiles(),
+  };
+  return platform;
+}
+const noSubscribe = () => () => {};
+
 export function WallButton({
   imageUrl,
   title,
@@ -31,18 +42,18 @@ export function WallButton({
   onClickCapture,
 }: Props) {
   const sheetTitleId = useId();
-  const [mode, setMode] = useState<Mode>("pending");
+  // "pending" during SSR and hydration, then the real platform.
+  const mode = useSyncExternalStore<Mode>(noSubscribe, () => readPlatform().mode, () => "pending");
+  const shareReady = useSyncExternalStore(
+    noSubscribe,
+    () => readPlatform().shareReady,
+    () => false,
+  );
   const [busy, setBusy] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [shareFile, setShareFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [shareReady, setShareReady] = useState(false);
-
-  useEffect(() => {
-    setMode(canUseRaycastWallpaper() ? "raycast" : "share");
-    setShareReady(canNativeShareFiles());
-  }, []);
 
   useEffect(() => {
     return () => {

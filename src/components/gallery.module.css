@@ -28,38 +28,35 @@
 }
 
 .header {
-  border: 1px solid var(--border);
-  padding: 12px;
-  background: var(--surface);
-}
-
-.headerTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  min-height: var(--hit);
+  padding: 2px 12px 0;
 }
 
-.crumbs {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.crumbs a {
-  color: var(--dim);
-}
-
-.crumbs a:hover {
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--hit);
+  padding: 0 6px;
   color: var(--fg);
 }
 
-.sep {
-  color: var(--mute);
-  margin: 0 4px;
+.brandMark {
+  flex: none;
 }
 
-.here {
-  color: var(--fg);
+.brandWord {
+  font-family: var(--font-caps);
+  font-weight: 600;
+  font-size: 0.98rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  /* Trailing tracking would push the word off-centre. */
+  margin-right: -0.24em;
+  line-height: 1;
 }
 
 .empty {

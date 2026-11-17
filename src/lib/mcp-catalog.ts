@@ -30,7 +30,7 @@ export function toCard(w: Wallpaper): WallpaperCard {
     size: w.size != null ? fmtSize(w.size) : null,
     imageUrl: w.url,
     thumbUrl: thumbUrl(w.url, 960),
-    galleryUrl: `${SITE_URL}/gallery`,
+    galleryUrl: `${SITE_URL}/gallery?p=${encodeURIComponent(w.id)}`,
   };
 }
 
@@ -97,9 +97,9 @@ export function catalogJson(): string {
   const wallpapers = loadWallpapers().map(toCard);
   return JSON.stringify(
     {
-      name: "Wallpaper Curator",
+      name: "Rotapicta",
       description:
-        "Curated public-domain paintings for desktop wallpapers. Browse, download, or set via Raycast.",
+        "Rotapicta — the painted wheel. Curated public-domain paintings for phone and desktop wallpapers. Browse, download, or set via Raycast.",
       siteUrl: SITE_URL,
       galleryUrl: `${SITE_URL}/gallery`,
       mcpUrl: `${SITE_URL}/api/mcp`,

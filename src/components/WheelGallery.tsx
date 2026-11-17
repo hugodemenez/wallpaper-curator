@@ -1,11 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { BrandMark } from "@/components/BrandMark";
 import { CardActions } from "@/components/CardActions";
 import { type Wallpaper } from "@/lib/wallpapers";
 import {
   blurLayerOpacity,
   circularDelta,
+  INTRO_RATE,
+  INTRO_SPIN,
+  introPathIndices,
   itemPose,
   itemTransform,
   itemZIndex,
@@ -22,7 +27,14 @@ import {
   wrapIndex,
   wheelMetrics,
 } from "@/components/wheel-math";
-import { prefetchUrl, showDecoded, thumbFor, tinyFor } from "@/components/wheel-images";
+import {
+  decodeAll,
+  introUrls,
+  prefetchUrl,
+  showDecoded,
+  thumbFor,
+  tinyFor,
+} from "@/components/wheel-images";
 import styles from "./wheel-gallery.module.css";
 
 type Frame = { nearest: number; lo: number; slots: number[] };
@@ -44,6 +56,25 @@ type Card = {
 
 /** Fastest the wheel may spin after a flick, in paintings per second. */
 const MAX_VELOCITY = 40;
+
+/**
+ * Opening animation phases. `pending`: the wheel is parked on its random
+ * target but hidden while the target, its neighbours and a stand-in for every
+ * card on the spin path decode. `spinning`: revealed and decaying onto the
+ * target. `done`: ordinary wheel.
+ */
+type IntroPhase = "pending" | "spinning" | "done";
+
+/** Longest we hold the reveal for images on a slow network. */
+const INTRO_GATE_MS = 3500;
+/** How long the wheel takes to swing in from depth (ms). */
+const INTRO_TILT_MS = 1150;
+/** Swings in from below-left and far back, then faces the viewer. */
+const INTRO_TILT_FROM =
+  "perspective(1100px) translate3d(0px, 7%, -320px) rotateX(18deg) rotateY(-26deg) rotateZ(-2deg)";
+const INTRO_TILT_TO =
+  "perspective(1100px) translate3d(0px, 0%, 0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+const INTRO_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 function setLayerVisible(el: HTMLElement, on: boolean) {
   el.style.visibility = on ? "visible" : "hidden";
@@ -98,9 +129,17 @@ export function WheelGallery({
   const snapTimerRef = useRef(0);
   const countRef = useRef(count);
   const wallpapersRef = useRef(wallpapers);
+  const captionRef = useRef<HTMLDivElement>(null);
+  const introRef = useRef<{
+    phase: IntroPhase;
+    target: number;
+    anims: Animation[];
+  }>({ phase: "pending", target: 0, anims: [] });
 
   const [frame, setFrame] = useState<Frame>(() => visibleSlots(0, count));
   const [dragging, setDragging] = useState(false);
+  const [intro, setIntro] = useState<IntroPhase>("pending");
+  const [introTarget, setIntroTarget] = useState<number | null>(null);
 
   /**
    * Writes transforms / opacity only. No layout reads happen here, and values
@@ -307,6 +346,10 @@ export function WheelGallery({
         else {
           rafRef.current = 0;
           modeRef.current = "idle";
+          if (introRef.current.phase === "spinning") {
+            introRef.current.phase = "done";
+            setIntro("done");
+          }
         }
       };
       rafRef.current = requestAnimationFrame(tick);
@@ -314,14 +357,39 @@ export function WheelGallery({
     [publish, stopGlide],
   );
 
+  /**
+   * The user touched, scrolled or pressed a key during the intro: they own
+   * the wheel from here. Position is already theirs (callers stop the glide);
+   * the swing-in just finishes quickly instead of jumping.
+   */
+  const takeOver = useCallback(() => {
+    const state = introRef.current;
+    if (state.phase === "done") return;
+    const wasPending = state.phase === "pending";
+    state.phase = "done";
+    setIntro("done");
+    for (const anim of state.anims) {
+      if (anim.playState === "running") anim.updatePlaybackRate(4);
+    }
+    if (wasPending) {
+      // Never revealed: fade straight in on the target, no spin.
+      const fade: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
+      const timing = { duration: 200, easing: "ease-out", fill: "backwards" as const };
+      const arc = stageRef.current?.querySelector<HTMLElement>("[data-wheel-arc]");
+      arc?.animate(fade, timing);
+      captionRef.current?.animate(fade, timing);
+    }
+  }, []);
+
   const nudge = useCallback(
     (dir: number) => {
       if (countRef.current <= 1) return;
+      takeOver();
       const base =
         modeRef.current === "glide" ? targetRef.current : Math.round(offsetRef.current);
       glideTo(base + dir, 0);
     },
-    [glideTo],
+    [glideTo, takeOver],
   );
 
   useEffect(() => {
@@ -353,6 +421,84 @@ export function WheelGallery({
     paint();
   }, [applySize, paint]);
 
+  /**
+   * Opening spin. Runs once on mount, before the first paint: pick the
+   * landing painting (`?p=<id>` deep link, otherwise random per load), park
+   * the hidden wheel on it, decode what the spin will show, then swing the
+   * wheel in while it decays onto the target through the normal glide.
+   */
+  useLayoutEffect(() => {
+    const total = countRef.current;
+    const list = wallpapersRef.current;
+    const stage = stageRef.current;
+    if (total === 0 || !stage) return;
+    const state = introRef.current;
+    const wanted = new URLSearchParams(window.location.search).get("p");
+    let target = wanted ? list.findIndex((w) => w.id === wanted) : -1;
+    if (target < 0) target = Math.floor(Math.random() * total);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reducedRef.current = reduced;
+    state.target = target;
+    offsetRef.current = target;
+    rawRef.current = target;
+    targetRef.current = target;
+    publish();
+    setIntroTarget(target);
+
+    const spin = reduced || total < 2 ? 0 : INTRO_SPIN;
+    const near = [-3, -2, -1, 1, 2, 3].map((step) => list[wrapIndex(target + step, total)].url);
+    const path = introPathIndices(target, total, spin).map((index) => list[index].url);
+    const urls = introUrls({ target: list[target].url, neighbours: near, path });
+    let cancelled = false;
+
+    decodeAll(urls, INTRO_GATE_MS).then(() => {
+      if (cancelled || state.phase !== "pending") return;
+      const arc = stage.querySelector<HTMLElement>("[data-wheel-arc]");
+      const caption = captionRef.current;
+      state.phase = spin ? "spinning" : "done";
+      if (!spin) {
+        // Reduced motion: no spin, a short fade onto the painting.
+        const timing = { duration: 380, easing: "ease-out", fill: "backwards" as const };
+        state.anims = [
+          arc?.animate([{ opacity: 0 }, { opacity: 1 }], timing),
+          caption?.animate([{ opacity: 0 }, { opacity: 1 }], timing),
+        ].filter((a): a is Animation => Boolean(a));
+        setIntro("done");
+        return;
+      }
+      // Start `spin` paintings back and mount those cards synchronously, so
+      // the first revealed frame already shows the start of the path.
+      offsetRef.current = target - spin;
+      rawRef.current = target - spin;
+      velocityRef.current = 0;
+      flushSync(() => publish());
+      // publish() folds a negative start back into one turn, so aim relative
+      // to where the wheel now is rather than at the raw index.
+      glideTo(offsetRef.current + spin, spin * INTRO_RATE, { kind: "decay", rate: INTRO_RATE });
+      state.anims = [
+        arc?.animate(
+          [
+            { transform: INTRO_TILT_FROM, opacity: 0, offset: 0 },
+            { opacity: 1, offset: 0.4 },
+            { transform: INTRO_TILT_TO, opacity: 1, offset: 1 },
+          ],
+          { duration: INTRO_TILT_MS, easing: INTRO_EASE, fill: "backwards" },
+        ),
+        caption?.animate(
+          [
+            { opacity: 0, transform: "translate3d(0px, 10px, 0px)" },
+            { opacity: 1, transform: "translate3d(0px, 0px, 0px)" },
+          ],
+          { duration: 560, delay: 760, easing: INTRO_EASE, fill: "backwards" },
+        ),
+      ].filter((a): a is Animation => Boolean(a));
+      setIntro("spinning");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [glideTo, publish]);
+
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -377,6 +523,7 @@ export function WheelGallery({
       if (event.ctrlKey) return;
       if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
       event.preventDefault();
+      takeOver();
       let dy = event.deltaY;
       if (event.deltaMode === 1) dy *= 16;
       if (event.deltaMode === 2) dy *= stageHeight;
@@ -404,7 +551,7 @@ export function WheelGallery({
       cancelAnimationFrame(frameRafRef.current);
       frameRafRef.current = 0;
     };
-  }, [applySize, glideTo, paint, stopGlide]);
+  }, [applySize, glideTo, paint, stopGlide, takeOver]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -438,6 +585,7 @@ export function WheelGallery({
     if (event.button !== 0) return;
     const target = event.target;
     if (target instanceof Element && target.closest("[data-card-action]")) return;
+    takeOver();
     stopGlide();
     modeRef.current = "drag";
     rawRef.current = offsetRef.current;
@@ -525,6 +673,8 @@ export function WheelGallery({
       ref={stageRef}
       data-dragging={dragging ? "true" : "false"}
       data-wheel-index={frame.nearest}
+      data-intro={intro}
+      data-intro-target={introTarget ?? undefined}
       role="group"
       aria-roledescription="vertical wheel"
       aria-label="Wallpapers"
@@ -533,6 +683,11 @@ export function WheelGallery({
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
     >
+      {intro === "pending" && (
+        <div className={styles.loader} aria-hidden="true">
+          <BrandMark className={styles.loaderMark} size={44} />
+        </div>
+      )}
       <div className={styles.arc} data-wheel-arc="">
         {indexes.map((index) => {
           const wallpaper = wallpapers[index];
@@ -596,7 +751,7 @@ export function WheelGallery({
         })}
       </div>
       {current && (
-        <div className={styles.caption}>
+        <div className={styles.caption} ref={captionRef}>
           <div className={styles.titleBox} aria-live="polite">
             {titleIds.map((index) => {
               const wallpaper = wallpapers[index];

@@ -341,3 +341,30 @@ export function stepMotion(
   if (done) return { x: target, velocity: 0, done: true };
   return { x: target + e, velocity: v, done: false };
 }
+
+/**
+ * Opening spin. The wheel starts INTRO_SPIN paintings before its target and
+ * decays onto it with the same exponential curve a flick uses, so the landing
+ * is the normal resting state with nothing to hand off. Rate 4/s from 10 away
+ * starts at 40 paintings/s (MAX_VELOCITY) and is within 0.2 of the target
+ * after one second.
+ */
+export const INTRO_SPIN = 10;
+export const INTRO_RATE = 4;
+
+/**
+ * Every wheel step the opening spin passes, from `INTRO_SPIN + reach` before
+ * the target to `reach` after it, so each card that shows up on the way has
+ * at least a stand-in decoded.
+ */
+export function introPathIndices(target: number, count: number, spin = INTRO_SPIN, reach = 3) {
+  const out: number[] = [];
+  const seen = new Set<number>();
+  for (let step = -spin - reach; step <= reach; step += 1) {
+    const index = wrapIndex(target + step, count);
+    if (seen.has(index)) continue;
+    seen.add(index);
+    out.push(index);
+  }
+  return out;
+}

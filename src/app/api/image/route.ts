@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   const upstream = await fetch(target.toString(), {
     headers: {
-      "User-Agent": "WallpaperCurator/1.0 (github.com/hugodemenez/wallpaper-curator)",
+      "User-Agent": "Rotapicta/1.0 (https://rotapicta.com; github.com/hugodemenez/wallpaper-curator)",
       Accept: "image/*",
     },
     next: { revalidate: 86400 },

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The Raycast extension has its own toolchain (`ray lint`).
+    "raycast-extension/**",
   ]),
 ]);
 

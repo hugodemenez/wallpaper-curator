@@ -2,14 +2,14 @@
  * Capture desktop screenshots for the README.
  * Requires: npx playwright install chromium
  *
- *   SITE_URL=https://wallpaper-curator.vercel.app node scripts/capture-screenshots.mjs
+ *   SITE_URL=https://rotapicta.com node scripts/capture-screenshots.mjs
  */
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { chromium } from "playwright";
 import sharp from "sharp";
 
-const base = process.env.SITE_URL ?? "https://wallpaper-curator.vercel.app";
+const base = process.env.SITE_URL ?? "https://rotapicta.com";
 const dir = join(process.cwd(), "docs/screenshots");
 mkdirSync(dir, { recursive: true });
 

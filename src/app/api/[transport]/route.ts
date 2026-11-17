@@ -26,7 +26,7 @@ const handler = createMcpHandler(
 
     server.tool(
       "search_wallpapers",
-      "Search the Wallpaper Curator public-domain painting catalog by free text, artist, and/or tone. Returns image URLs and gallery links.",
+      "Search the Rotapicta public-domain painting catalog by free text, artist, and/or tone. Returns image URLs and gallery links.",
       {
         query: z
           .string()
@@ -116,7 +116,7 @@ const handler = createMcpHandler(
       "wallpaper://catalog",
       {
         description:
-          "Full Wallpaper Curator catalog as JSON (ids, artists, tones, image URLs).",
+          "Full Rotapicta catalog as JSON (ids, artists, tones, image URLs).",
         mimeType: "application/json",
       },
       async (uri) => ({
@@ -136,7 +136,7 @@ const handler = createMcpHandler(
       version: "1.0.0",
     },
     instructions: [
-      "Wallpaper Curator is a curated library of public-domain paintings for wallpapers.",
+      "Rotapicta (Latin for “painted wheel”) is a curated library of public-domain paintings for wallpapers.",
       `Browse the web gallery at ${SITE_URL}/gallery.`,
       "Prefer list_facets → search_wallpapers → get_wallpaper.",
       "Image URLs are public (Wikimedia Commons / open museums). Respect source attribution when sharing.",

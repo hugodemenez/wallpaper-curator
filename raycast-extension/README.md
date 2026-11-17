@@ -1,6 +1,6 @@
-# Wallpaper Curator — Raycast extension
+# Rotapicta — Raycast extension
 
-macOS companion for [Wallpaper Curator](https://wallpaper-curator.vercel.app).
+macOS companion for [Rotapicta](https://rotapicta.com) (formerly Wallpaper Curator; the extension id stays `wallpaper-curator`).
 
 The website cannot embed Raycast itself — install this extension, then:
 
@@ -23,8 +23,8 @@ npm run dev          # ray develop — installs into Raycast as a local extensio
 ```
 
 1. Keep the site running if you point preferences at localhost (`npm run dev` in the repo root).
-2. In Raycast → Wallpaper Curator → Preferences → **API Base URL**:
-   - Production: `https://wallpaper-curator.vercel.app` (default)
+2. In Raycast → Rotapicta → Preferences → **API Base URL**:
+   - Production: `https://rotapicta.com` (default; `https://wallpaper-curator.vercel.app` also works)
    - Local site: `http://localhost:3000`
 3. Run **Browse Wallpapers**, pick a painting → **Set as Wallpaper**.
 4. From the website gallery on Mac, click **wall** to exercise the deeplink command.
@@ -48,4 +48,4 @@ npm run build
 npx ray submit
 ```
 
-`ray submit` opens the Raycast publish flow (login required on your machine). After approval, Store users can install **Wallpaper Curator**; gallery `wall` deeplinks keep working because `author` / `name` / `set-wallpaper` stay stable.
+`ray submit` opens the Raycast publish flow (login required on your machine). After approval, Store users can install **Rotapicta**; gallery `wall` deeplinks keep working because `author` / `name` / `set-wallpaper` stay stable.

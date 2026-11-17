@@ -1,15 +1,10 @@
 import { loadWallpapers } from "@/lib/load-wallpapers";
+import { OG_IDS, pick } from "@/lib/featured";
 import { thumbUrl, type Wallpaper } from "@/lib/wallpapers";
 
-/** Newest catalog entries first (by artwork date, then id). */
-export function latestWallpapers(count = 4): Wallpaper[] {
-  const all = loadWallpapers();
-  return [...all]
-    .sort(
-      (a, b) =>
-        b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
-    )
-    .slice(0, count);
+/** The three paintings stacked on the share card (above, centre, below). */
+export function ogWallpapers(): Wallpaper[] {
+  return pick(loadWallpapers(), OG_IDS);
 }
 
 /** Fetch a Wikimedia thumb as a data URL for next/og (reliable in ImageResponse). */
@@ -21,8 +16,7 @@ export async function wallpaperDataUrl(
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent":
-          "WallpaperCurator/1.0 (github.com/hugodemenez/wallpaper-curator)",
+        "User-Agent": "Rotapicta/1.0 (https://rotapicta.com; github.com/hugodemenez/wallpaper-curator)",
         Accept: "image/*",
       },
       next: { revalidate: 86400 },

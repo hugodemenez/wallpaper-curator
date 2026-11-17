@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "wallpaper-curator",
-  "title": "Wallpaper Curator",
-  "description": "Browse the Wallpaper Curator public-domain gallery, download from the real source URL, and set it as your macOS desktop wallpaper.",
+  "title": "Rotapicta",
+  "description": "Browse the Rotapicta public-domain gallery, download from the real source URL, and set it as your macOS desktop wallpaper.",
   "icon": "icon.png",
   "author": "hugodemenez",
   "categories": [
@@ -14,7 +14,7 @@
     {
       "name": "browse-wallpapers",
       "title": "Browse Wallpapers",
-      "description": "Search the curated catalog from wallpaper-curator.vercel.app and set a wallpaper",
+      "description": "Search the curated catalog from rotapicta.com and set a wallpaper",
       "mode": "view"
     },
     {
@@ -39,8 +39,8 @@
       "required": false,
       "title": "API Base URL",
       "description": "Catalog API origin. Default is production; use http://localhost:3000 while developing the site.",
-      "default": "https://wallpaper-curator.vercel.app",
-      "placeholder": "https://wallpaper-curator.vercel.app"
+      "default": "https://rotapicta.com",
+      "placeholder": "https://rotapicta.com"
     }
   ],
   "dependencies": {

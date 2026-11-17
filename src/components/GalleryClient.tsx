@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
+import { BrandMark } from "@/components/BrandMark";
 import { ViewerStage } from "@/components/ViewerStage";
 import { WheelGallery } from "@/components/WheelGallery";
 import { WallButton } from "@/components/WallButton";
@@ -56,13 +57,10 @@ export function GalleryClient({ wallpapers }: { wallpapers: Wallpaper[] }) {
     <div className={`${styles.shell} ${styles.shellWheel}`}>
       <div className={styles.chrome}>
         <header className={styles.header}>
-          <div className={styles.crumbs}>
-            <Link href="/">Wallpaper Curator</Link>
-            <span className={styles.sep} aria-hidden="true">
-              /
-            </span>
-            <span className={styles.here}>Gallery</span>
-          </div>
+          <Link href="/" className={styles.brand} aria-label="Rotapicta — home">
+            <BrandMark className={styles.brandMark} size={22} />
+            <span className={styles.brandWord}>Rotapicta</span>
+          </Link>
         </header>
       </div>
 

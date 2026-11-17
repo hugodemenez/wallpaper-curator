@@ -202,3 +202,30 @@ export function tinyFor(url: string) {
   if (sized) tinyUrls.add(sized);
   return sized;
 }
+
+/**
+ * Everything the opening spin needs decoded before the wheel is revealed:
+ * the target at the centred size, its resting neighbours at 500px, and a
+ * stand-in for every card the spin passes. Ordered so the target's own tiers
+ * are requested first.
+ */
+export function introUrls(
+  urls: { target: string; neighbours: string[]; path: string[] },
+): string[] {
+  const out: string[] = [];
+  const add = (url: string | null) => {
+    if (url && !out.includes(url)) out.push(url);
+  };
+  add(thumbFor(urls.target, false));
+  add(thumbFor(urls.target, true));
+  for (const url of urls.neighbours) add(thumbFor(url, false));
+  for (const url of urls.path) add(tinyFor(url) ?? thumbFor(url, false));
+  return out;
+}
+
+/** Resolves once every URL has decoded (or failed), or after `timeoutMs`. */
+export function decodeAll(urls: string[], timeoutMs: number): Promise<"ready" | "timeout"> {
+  const all = Promise.all(urls.map((url) => prefetchUrl(url))).then(() => "ready" as const);
+  const late = new Promise<"timeout">((resolve) => window.setTimeout(() => resolve("timeout"), timeoutMs));
+  return Promise.race([all, late]);
+}

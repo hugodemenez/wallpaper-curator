@@ -39,7 +39,7 @@ type Preferences = {
 function apiBase(): string {
   const prefs = getPreferenceValues<Preferences>();
   const raw =
-    prefs.apiBaseUrl?.trim() || "https://wallpaper-curator.vercel.app";
+    prefs.apiBaseUrl?.trim() || "https://rotapicta.com";
   return raw.replace(/\/$/, "");
 }
 
@@ -97,7 +97,7 @@ export default function Command() {
       throttle
     >
       <List.Section
-        title="Wallpaper Curator"
+        title="Rotapicta"
         subtitle={
           data
             ? `${filtered.length} of ${data.total} · from ${base}`
